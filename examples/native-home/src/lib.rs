@@ -9,3 +9,5 @@ pub mod strings;
 pub mod runtime;
 
 pub mod preferences;
+
+pub mod native_probe;

@@ -39,6 +39,8 @@ if main == 'home-preview':
     shutil.copy2(assets / 'snapshot.json', stage / 'snapshot.json')
     if os.environ.get('NATIVE_HOME_PREFERENCES_PROBE') == '1':
         shutil.copy2(assets / 'preferences-hold-probe.json', stage / 'preferences-hold-probe.json')
+    if os.environ.get('NATIVE_HOME_NATIVE_READ_PROBE') == '1':
+        (stage / 'native-read-probe.json').write_text('{}\n')
     for app in snapshot['applications']:
         icon_path = app.get('icon')
         if not icon_path: continue
@@ -75,6 +77,7 @@ if members != ['debian-binary', 'control.tar.gz', 'data.tar.gz']: raise RuntimeE
 receipt = {'app_id': app_id, 'ipk': str(ipk), 'sha256': hashlib.sha256(ipk.read_bytes()).hexdigest(),
            'binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest(), 'bytes': ipk.stat().st_size,
            'preference_hold_probe': os.environ.get('NATIVE_HOME_PREFERENCES_PROBE') == '1',
+           'native_read_probe': os.environ.get('NATIVE_HOME_NATIVE_READ_PROBE') == '1',
            'permissions': [], 'services': [], 'boot_hooks': [], 'system_files': []}
 (output / 'preview-package-receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
 print(json.dumps(receipt))

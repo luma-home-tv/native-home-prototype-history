@@ -28,7 +28,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
     let capture_only = !device && !args.iter().any(|a| a == "--interactive");
     let window = Window::new(!capture_only)?;
-    std::fs::create_dir(&output)?;
+    {
+        use std::os::unix::fs::DirBuilderExt;
+        let mut builder = std::fs::DirBuilder::new();
+        builder.mode(0o700).create(&output)?;
+    }
+    let native_probe = if device && assets.join("native-read-probe.json").exists() {
+        Some(
+            std::thread::Builder::new()
+                .name("home-read-probe".into())
+                .spawn(native_home::native_probe::collect)?,
+        )
+    } else {
+        None
+    };
     let bytes = std::fs::read(assets.join("snapshot.json"))?;
     if bytes.len() > 1024 * 1024 {
         return Err("Snapshot too large".into());
@@ -245,13 +258,30 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             &mut storage_error,
         );
     }
+    let native_api_probe = match native_probe {
+        Some(worker) => Some(
+            worker
+                .join()
+                .map_err(|_| "Read capability worker panicked")?,
+        ),
+        None => None,
+    };
+    if let Some(data) = &native_api_probe {
+        let mut file = std::fs::OpenOptions::new()
+            .create_new(true)
+            .write(true)
+            .mode(0o600)
+            .custom_flags(libc::O_NOFOLLOW | libc::O_CLOEXEC)
+            .open(output.join("native-api-probe.json"))?;
+        serde_json::to_writer_pretty(&mut file, data)?;
+    }
     let persistent_readback = committed_preferences.as_ref() == Some(shell.preferences())
         || (loaded_preferences.as_ref() == Some(shell.preferences()) && storage_error.is_none());
     let report = serde_json::json!({"device":device,"app_id":plx_base::paths::app_id(),"uid":unsafe{libc::geteuid()},"renderer":window.renderer,
         "drawable":[1920,1080],"events":events,"event_log":event_log,"exit_reason":reason,"requests_not_executed":requests,
         "setting_writes":false,"application_launches":false,"data":"captured TV snapshot","preferences":shell.preferences(),
         "preferences_at_boot":preferences_at_boot,"preferences_loaded":loaded_preferences.is_some(),"preferences_readback_confirmed":persistent_readback,
-        "storage_error":storage_error,"storage_class":if device{"developer media"}else{"host instance"},"hold_probe_identity":probe_identity,"hold_probe_changed":probe_changed,
+        "storage_error":storage_error,"native_read_probe_registered":native_api_probe.as_ref().and_then(|v|v.get("registered")),"storage_class":if device{"developer media"}else{"host instance"},"hold_probe_identity":probe_identity,"hold_probe_changed":probe_changed,
         "performance_validated":false,"scripted_navigation":{"focus":navigation,"page_after_ok":navigation_page,"passed":navigation_page=="Inputs","requests_not_executed":scripted_requests},"elapsed_seconds":start.elapsed().as_secs_f64()});
     let mut file = std::fs::OpenOptions::new()
         .create_new(true)
