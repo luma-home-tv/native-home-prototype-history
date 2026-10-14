@@ -35,7 +35,7 @@ pub struct Catalogue {
     pub applications: Vec<Launchable>,
 }
 
-fn valid_app_id(id: &str) -> bool {
+pub(crate) fn valid_app_id(id: &str) -> bool {
     !id.is_empty() && id.len() <= 180 && id.bytes().all(|c| c.is_ascii_alphanumeric() || b"._-".contains(&c))
 }
 

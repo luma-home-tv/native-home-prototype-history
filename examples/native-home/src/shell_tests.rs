@@ -167,3 +167,23 @@ fn empty_or_unregistered_catalogue_keeps_navigation_available() {
     assert_eq!(s.page(), Page::Applications);
     assert_eq!(focus(&s), RAIL_BASE + 1);
 }
+
+#[test]
+fn app_picker_restores_registered_identity_from_a_remembered_rail_without_accepting_arbitrary_targets(
+) {
+    let _serial = plx_base::testlock::serial();
+    let mut s = Shell::new(fixture(), Preferences::default());
+    s.open(Page::Applications);
+    s.direction(Dir::Left);
+    s.direction(Dir::Down);
+    s.open(Page::Inputs);
+    s.open(Page::Applications);
+    assert_eq!(focus(&s), RAIL_BASE + 2);
+    assert!(!s.focus_application("com.example.gone"));
+    assert_eq!(focus(&s), RAIL_BASE + 2);
+    assert!(s.focus_application("com.example.app01"));
+    assert_eq!(s.focused_item().as_deref(), Some("com.example.app01"));
+    s.open(Page::Inputs);
+    assert!(!s.focus_application("HDMI_1"));
+    assert!(s.take_requests().is_empty());
+}

@@ -7,3 +7,5 @@ pub mod shell;
 pub mod strings;
 
 pub mod runtime;
+
+pub mod preferences;

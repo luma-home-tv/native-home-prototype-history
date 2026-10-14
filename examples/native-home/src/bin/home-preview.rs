@@ -1,6 +1,7 @@
 //! Bounded interactive native shell. Snapshot-only: requests are recorded, never executed.
 use native_home::{
     model::Page,
+    preferences::Persistence,
     runtime::{poll, Window},
     shell::{Preferences, Shell, Snapshot},
 };
@@ -21,7 +22,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         PathBuf::from(args.get(1).ok_or("Specify snapshot asset directory")?)
     };
     let output = if device {
-        plx_base::paths::in_runtime_dir("shell")
+        plx_base::paths::in_runtime_dir(&format!("shell-{}", std::process::id()))
     } else {
         PathBuf::from(args.get(2).ok_or("Specify new capture directory")?)
     };
@@ -33,7 +34,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         return Err("Snapshot too large".into());
     }
     let snapshot: Snapshot = serde_json::from_slice(&bytes)?;
-    let mut shell = Shell::new(snapshot, Preferences::default());
+    let state_path = if device {
+        PathBuf::from("/media/developer/.com.ash.nativehome.preview-state")
+    } else {
+        PathBuf::from(
+            std::env::var_os("PLXNATIVE_RUNTIME_DIR")
+                .ok_or("An isolated host runtime is required")?,
+        )
+        .join("home-preferences")
+    };
+    let (mut persistence, loaded_preferences, mut storage_error) =
+        match Persistence::start(&state_path) {
+            Ok((writer, loaded)) => (Some(writer), loaded, None),
+            Err(error) => (None, None, Some(error.to_string())),
+        };
+    let mut committed_preferences = None;
+    let mut shell = Shell::new(snapshot, loaded_preferences.clone().unwrap_or_default());
+    queue_preferences(&mut shell, &mut persistence, &mut storage_error);
+    let preferences_at_boot = shell.preferences().clone();
     shell.load_icons(&assets);
     let mut now = 0;
     for (page, name) in [
@@ -84,6 +102,47 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .into_iter()
         .map(|a| format!("{a:?}"))
         .collect::<Vec<_>>();
+    let probe_path = assets.join("preferences-hold-probe.json");
+    let mut probe_identity = None;
+    let mut probe_changed = false;
+    if probe_path.exists() {
+        #[derive(serde::Deserialize)]
+        #[serde(deny_unknown_fields)]
+        struct Probe {
+            application_id: String,
+        }
+        let bytes = std::fs::read(probe_path)?;
+        if bytes.len() > 1024 {
+            return Err("Oversized preference probe".into());
+        }
+        let probe: Probe = serde_json::from_slice(&bytes)?;
+        shell.open(Page::Applications);
+        if !shell.focus_application(&probe.application_id) {
+            return Err("Probe app is not in the drawer".into());
+        }
+        probe_identity = shell.focused_item();
+        let before = shell
+            .preferences()
+            .favourites
+            .contains(&probe.application_id);
+        shell.press(true, PressFrom::Key);
+        for _ in 0..45 {
+            now += 17;
+            shell.repeat();
+            shell.tick(now, 1.0 / 60.0);
+        }
+        shell.press(false, PressFrom::Key);
+        for _ in 0..30 {
+            now += 17;
+            shell.tick(now, 1.0 / 60.0);
+        }
+        probe_changed = before
+            != shell
+                .preferences()
+                .favourites
+                .contains(&probe.application_id);
+        queue_preferences(&mut shell, &mut persistence, &mut storage_error);
+    }
     shell.open(Page::Home);
     let start = Instant::now();
     let mut last = start;
@@ -153,6 +212,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 reason = "window_hidden";
                 break;
             }
+            queue_preferences(&mut shell, &mut persistence, &mut storage_error);
+            if let Some(writer) = &mut persistence {
+                accept_replies(
+                    writer.poll(),
+                    &mut committed_preferences,
+                    &mut storage_error,
+                );
+            }
+            if storage_error.is_some() {
+                shell.storage_notice("Favourites could not be saved • previous data kept");
+            }
             requests.extend(shell.take_requests().into_iter().map(|a| format!("{a:?}")));
             if hidden_at.is_none() {
                 shell.draw();
@@ -168,9 +238,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             reason = "back_from_home";
         }
     }
+    if let Some(writer) = persistence {
+        accept_replies(
+            writer.finish(),
+            &mut committed_preferences,
+            &mut storage_error,
+        );
+    }
+    let persistent_readback = committed_preferences.as_ref() == Some(shell.preferences())
+        || (loaded_preferences.as_ref() == Some(shell.preferences()) && storage_error.is_none());
     let report = serde_json::json!({"device":device,"app_id":plx_base::paths::app_id(),"uid":unsafe{libc::geteuid()},"renderer":window.renderer,
         "drawable":[1920,1080],"events":events,"event_log":event_log,"exit_reason":reason,"requests_not_executed":requests,
         "setting_writes":false,"application_launches":false,"data":"captured TV snapshot","preferences":shell.preferences(),
+        "preferences_at_boot":preferences_at_boot,"preferences_loaded":loaded_preferences.is_some(),"preferences_readback_confirmed":persistent_readback,
+        "storage_error":storage_error,"storage_class":if device{"developer media"}else{"host instance"},"hold_probe_identity":probe_identity,"hold_probe_changed":probe_changed,
         "performance_validated":false,"scripted_navigation":{"focus":navigation,"page_after_ok":navigation_page,"passed":navigation_page=="Inputs","requests_not_executed":scripted_requests},"elapsed_seconds":start.elapsed().as_secs_f64()});
     let mut file = std::fs::OpenOptions::new()
         .create_new(true)
@@ -182,4 +263,31 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     file.write_all(b"\n")?;
     println!("{}", report);
     Ok(())
+}
+
+fn queue_preferences(
+    shell: &mut Shell,
+    writer: &mut Option<Persistence>,
+    error: &mut Option<String>,
+) {
+    if !shell.take_preferences_changed() {
+        return;
+    }
+    if let Some(writer) = writer {
+        if let Err(failure) = writer.queue(shell.preferences()) {
+            *error = Some(failure);
+        }
+    }
+}
+fn accept_replies(
+    replies: Vec<Result<Preferences, String>>,
+    committed: &mut Option<Preferences>,
+    error: &mut Option<String>,
+) {
+    for reply in replies {
+        match reply {
+            Ok(prefs) => *committed = Some(prefs),
+            Err(failure) => *error = Some(failure),
+        }
+    }
 }

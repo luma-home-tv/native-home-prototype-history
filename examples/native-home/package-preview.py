@@ -18,7 +18,7 @@ stage = output / 'preview-package/usr/palm/applications' / app_id
 stage.mkdir(parents=True, exist_ok=False)
 main = binary.name
 if main not in ('control-preview', 'home-preview'): raise ValueError('Unexpected preview binary')
-version = '0.2.0' if main == 'home-preview' else '0.1.0'
+version = '0.3.0' if main == 'home-preview' else '0.1.0'
 shutil.copy2(binary, stage / main)
 (stage / main).chmod(0o755)
 for name in ('appfont.ttf', 'appfont-bold.ttf', 'OFL.txt'):
@@ -37,6 +37,8 @@ if main == 'home-preview':
     assets = Path(os.environ['NATIVE_HOME_SNAPSHOT_ASSETS']).resolve()
     snapshot = json.loads((assets / 'snapshot.json').read_text())
     shutil.copy2(assets / 'snapshot.json', stage / 'snapshot.json')
+    if os.environ.get('NATIVE_HOME_PREFERENCES_PROBE') == '1':
+        shutil.copy2(assets / 'preferences-hold-probe.json', stage / 'preferences-hold-probe.json')
     for app in snapshot['applications']:
         icon_path = app.get('icon')
         if not icon_path: continue
@@ -72,6 +74,7 @@ members = subprocess.check_output([str(ar), 't', str(ipk)], text=True).splitline
 if members != ['debian-binary', 'control.tar.gz', 'data.tar.gz']: raise RuntimeError('Invalid IPK members')
 receipt = {'app_id': app_id, 'ipk': str(ipk), 'sha256': hashlib.sha256(ipk.read_bytes()).hexdigest(),
            'binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest(), 'bytes': ipk.stat().st_size,
+           'preference_hold_probe': os.environ.get('NATIVE_HOME_PREFERENCES_PROBE') == '1',
            'permissions': [], 'services': [], 'boot_hooks': [], 'system_files': []}
 (output / 'preview-package-receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
 print(json.dumps(receipt))

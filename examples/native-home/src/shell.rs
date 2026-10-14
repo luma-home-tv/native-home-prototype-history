@@ -67,7 +67,8 @@ pub struct Snapshot {
     pub context: Context,
     pub settings: BTreeMap<String, Vec<Setting>>,
 }
-#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Preferences {
     #[serde(default)]
     pub initialized: bool,
@@ -915,6 +916,27 @@ impl Shell {
         )
         .draw(p, Rect::new(96.0, 985.0, 1728.0, 44.0));
     }
+    /// Used by the app picker/search and by identity-based verification, never a private cursor.
+    pub fn focus_application(&mut self, id: &str) -> bool {
+        if !matches!(self.surface.page, Page::Home | Page::Applications) {
+            return false;
+        }
+        let Some(card) = self.surface.cards.items.iter().find(|c| c.id == id) else {
+            return false;
+        };
+        let owner = InputOwner::Entry(entry(self.surface.page));
+        let outcome = self.input.engine.set(
+            owner,
+            FocusKey {
+                entry: entry(self.surface.page),
+                elem: card.key,
+            },
+            Some(GroupId(1)),
+            By::Restore,
+        );
+        self.moved(outcome);
+        true
+    }
     pub fn focused_item(&self) -> Option<String> {
         let key = self
             .input
@@ -944,6 +966,9 @@ impl Shell {
     }
     pub fn preferences(&self) -> &Preferences {
         &self.prefs
+    }
+    pub fn storage_notice(&mut self, message: &str) {
+        self.status = cstr(message);
     }
     pub fn take_preferences_changed(&mut self) -> bool {
         std::mem::take(&mut self.preferences_changed)

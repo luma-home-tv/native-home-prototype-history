@@ -18,8 +18,13 @@ services, store placeholders and unregistered targets are excluded. A long OK
 press toggles a favourite and does not also launch the app on release. Moving
 focus cancels the armed gesture. Back returns through Controls or Home, and exits
 from Home. Empty catalogues and intentionally empty favourites keep the rail
-usable. Preferences have a serializable schema; a persistent store has **not**
-yet been connected, so this preview starts with default favourites each launch.
+usable. Favourites now use a versioned record in an app-owned directory on
+writable developer media. The store checks owner, private permissions, file type,
+links, byte limits and app identities; it refuses corrupt or newer-schema records.
+Directory-relative atomic replacement and fsync preserve the last complete state.
+A bounded worker queue keeps disk flushes off the render thread; save success is
+reported only after readback. Host reopen/empty-state and redirection checks pass;
+the new storage path still needs its own webOS24 relaunch/removal evidence.
 
 `collect-snapshot.py` reads registered apps/launch points, bounded icon files,
 HDMI status and picture/audio values over SSH. It never installs, launches or
@@ -32,7 +37,7 @@ The shell emits typed requests for applications, HDMI inputs and LG Settings,
 but the preview **records them without executing them**. It has no setting-write
 action, arbitrary service caller, privileged broker, Home interception or boot
 hook. Unsupported control sections stay with LG Settings. Comprehensive settings
-coverage, live refresh, persistent preferences, a restricted executor and device
+coverage, live refresh, durable device verification, a restricted executor and device
 performance remain incomplete.
 
 ## Build and verification
