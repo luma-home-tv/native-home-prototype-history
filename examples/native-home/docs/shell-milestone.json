@@ -1,0 +1,48 @@
+{
+  "code_revision": "dcc549d",
+  "shared_gate_revision": "ff25538",
+  "shared_tree_unchanged": true,
+  "architecture": "Optional separate Home client on PlxNative shared native UI; SDL/GLES, no WebView",
+  "validated": {
+    "client_behaviour_tests": {
+      "passed": 11,
+      "failed": 0
+    },
+    "client_clippy": "passed with warnings denied",
+    "arm_release_link": "passed",
+    "platform": "OLED55G26LA / webOS24 9.2.2-61 / firmware 23.25.55",
+    "renderer": "Mali-G52",
+    "drawable": [
+      1920,
+      1080
+    ],
+    "pages": [
+      "Home",
+      "Applications",
+      "Inputs",
+      "Controls",
+      "Picture",
+      "Sound"
+    ],
+    "page_images_inspected": true,
+    "scripted_arm_focus_and_ok": "Inputs reached",
+    "injected_back": "SDL scancode 482, source 10; back_from_home exit",
+    "removal": "package, catalogue, launch point, process, runtime, jail and mounts absent",
+    "core_hashes": "checked Home executable/manifest, Homebrew startup and native jail policy unchanged",
+    "settings": "picture and audio readbacks unchanged",
+    "foreground": "LG Home verified, then original PlxNative foreground restored and verified",
+    "reboot_required": false
+  },
+  "not_yet_validated": [
+    "physical remote",
+    "pointer",
+    "wheel",
+    "performance",
+    "persistent preferences",
+    "live refresh",
+    "app/source/control executor",
+    "complete settings parity"
+  ],
+  "authority": "No setting-write action or executable TV request in this preview; protected/stale rows disabled. Back opt-in is process-local. No Home interception, services, boot hooks or system payload.",
+  "privacy": "Actual application inventory, icons, images, host/TV configuration and receipts remain outside tracked source."
+}

@@ -70,9 +70,23 @@ hashes were unchanged and LG Home/PlxNative launches passed afterward. That
 capture proves rendering and scoped removal, not interactive navigation or
 settings parity.
 
-The newer host shell renders the G2's actual captured catalogue and readings.
-Behaviour tests cover drawer identity, protected/stale controls, navigation,
-press cancellation, hold-versus-release, empty favourites and distinct input
-requests. Host frames and tests are not television performance or physical remote
-proof. Each device deployment needs its own lock, frame inspection and cleanup
-receipt before it can be called verified.
+The newer shell rendered all six capture pages on the G2/Mali-G52 from the actual
+read-only catalogue and readings. Its scripted ARM focus/OK probe reached Inputs.
+LG network input delivered Back through SDL (scancode 482, source 10), and the
+shell exited from Home. The app-local SDL Back hint, also used by upstream, was
+necessary for this delivery. Physical remote, pointer, wheel and performance
+remain unverified for this client.
+
+The final preview was removed completely: package, catalogue/launcher entry,
+process, runtime, jail and mounts were absent; checked Home/startup/jail-policy
+hashes and picture/audio readbacks were unchanged. LG Home was observed in the
+foreground and the original PlxNative foreground was then restored and observed.
+No reboot was needed. Actual snapshots, app icons, six inspected native frames
+and detailed receipts stay in the private build workspace.
+
+Eleven client behaviour tests and Clippy pass on code revision `dcc549d`, which
+also produced the tested ARM release binary. The full upstream gate passed on
+`ff25538`; the entire shared `rust-modules` tree is unchanged since that gate.
+The public-safe [milestone record](docs/shell-milestone.json) keeps these evidence
+boundaries explicit. Live refresh/execution, persistent preferences, comprehensive
+control coverage and device performance remain ongoing work.

@@ -28,5 +28,6 @@
     }
   ],
   "upstream_policy": "Keep the standalone Home app isolated from Plex/player. Generic widgets or build fixes can be proposed separately once independently verified; no publication or maintainer messages in this stage.",
-  "host_spike_result": "Independent client directly imports plx_ui forms; four host model tests passed. Native rendering/performance of this reused-client build is not yet verified."
+  "initial_host_spike_result": "Independent client directly imports plx_ui forms; four host model tests passed. Native rendering/performance of this reused-client build is not yet verified.",
+  "current_result": "Separate shared-UI native client renders six pages on webOS24/Mali-G52 from a read-only TV snapshot. Scripted focus/OK and injected SDL Back are verified; clean removal passed. No live executor, persistent preferences, physical input or performance claim yet."
 }
