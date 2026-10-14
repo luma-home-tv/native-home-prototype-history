@@ -11,7 +11,9 @@ Home, Apps, Inputs and Controls experience with synthetic data. They are labelle
 mockups and are distinct from the native device captures and verified behaviour
 described below.
 
-The shell composes the existing card grid, declarative forms, focus engine,
+Home places favourites above HDMI sources using the shared horizontal shelves.
+Source tiles always show cable and signal readings; activity is a separate label.
+The drawer uses the existing card grid. The shell also composes declarative forms, focus engine,
 double-buffered hit map and press machine. Its four main areas are Home,
 Applications, Inputs and Controls. Controls lead to Picture, Sound, Network,
 Accessibility, General and Panel Care. A small shared `Art::Texture` variant lets
@@ -63,7 +65,9 @@ The proof package permits only that owned target; the normal client enables the
 validated application operation.
 
 HDMI and LG Settings request execution remain disabled pending their device
-validation. They have explicit adapters and host checks, not hardware proof.
+validation. Their device probes are incomplete: the Settings adapter observed an overlay but
+the independent observer missed it; disconnected HDMI 4 reached its foreground
+but EIM did not confirm activation. Neither is treated as a validated control.
 There is still no setting-write action, arbitrary service caller, privileged
 broker, Home interception or boot hook. Unsupported controls remain read-only. Comprehensive settings
 coverage, broader live data, durable device verification, a restricted executor
@@ -122,7 +126,7 @@ Eleven client behaviour tests and Clippy pass on code revision `dcc549d`, which
 also produced the tested ARM release binary. The full upstream gate passed on
 `ff25538`; the entire shared `rust-modules` tree is unchanged since that gate.
 The public-safe [milestone record](docs/shell-milestone.json) keeps these evidence
-boundaries explicit. Live refresh/execution, reboot persistence verification, comprehensive
+boundaries explicit. Reboot persistence verification, comprehensive
 control coverage and device performance remain ongoing work.
 
 The storage/read-capability slice is recorded in
@@ -146,3 +150,16 @@ and frame, and complete removal of both packages and their owned data/mounts.
 Checked core files and picture/audio values stayed unchanged; LG Home and the
 original PlxNative foreground were verified afterward. This is not playback,
 physical remote, HDMI/Settings launch or broad control/performance proof.
+
+
+The [combined Home layout milestone](docs/home-layout-milestone.json) records
+`1c736e3`: 35 client checks, Clippy, ARM release link and the native G2 capture.
+Home uses a horizontally scrolling favourites shelf above all four source tiles.
+Each source keeps its cable/signal status visible; a focused long name uses the
+shared marquee. Host checks cover movement between shelves, empty favourites,
+input identity/refresh, stale requests and spring motion settling. The device
+run applied four real read cycles, confirmed preference readback and exited via
+injected SDL Back. It proves rendering and bounded read/storage operation,
+not physical remote navigation, frame pacing or idle CPU behaviour. The preview
+and its data were removed, checked core hashes and picture/audio values stayed
+unchanged, LG Home was verified and the original foreground was restored.

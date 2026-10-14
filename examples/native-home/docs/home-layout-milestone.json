@@ -1,0 +1,79 @@
+{
+  "code_revision": "1c736e3",
+  "shared_source_tree": "509517bdc49512d17aa7c3a7c07db7c26fda5962",
+  "architecture": "Separate native SDL2/OpenGL ES application on shared PlxNative UI; no WebView",
+  "design_direction": "Apple TV / tvOS feel: large cards, restrained chrome, spatial focus, clear Back hierarchy",
+  "host_checks": {
+    "passed": 35,
+    "failed": 0,
+    "clippy": "warnings denied",
+    "arm_release": "ARMv7 softfp link passed",
+    "behaviours": [
+      "two-shelf movement through shared focus engine",
+      "input hold cannot change favourites",
+      "empty favourites retain input/navigation access",
+      "input refresh retains identity; stale input requests rejected",
+      "shelf springs report movement and settle"
+    ]
+  },
+  "native_capture": {
+    "platform": "OLED55G26LA / webOS24 9.2.2-61 / firmware 23.25.55",
+    "renderer": "Mali-G52",
+    "drawable": [
+      1920,
+      1080
+    ],
+    "uid": 5724,
+    "package_version": "0.6.0",
+    "binary_sha256": "2a149623645edcd8eefa8ec182f79150ad4b308d30f9c7def1a741109f21bd97",
+    "layout": "Home favourites shelf above four HDMI cards; source cable/signal readings always visible",
+    "reviewed_changed_pages": [
+      "Home",
+      "Inputs"
+    ],
+    "ordinary_app_update_cycles": 4,
+    "preferences_readback_confirmed": true,
+    "exit": "injected Back through SDL; back_from_home",
+    "setting_writes": false,
+    "application_or_source_launches_during_capture": false
+  },
+  "cleanup": {
+    "paths_and_mounts_absent": true,
+    "persistent_state_absent": true,
+    "catalogue_absent": true,
+    "launchpoint_absent": true,
+    "core_hashes_unchanged": true,
+    "picture_values_unchanged": true,
+    "audio_values_unchanged": true,
+    "home_foreground": true,
+    "original_foreground_verified": true,
+    "reboot_required": false
+  },
+  "capabilities": {
+    "normal_application_launch": true,
+    "input_switching": false,
+    "lg_settings_launch": false,
+    "setting_writes": false
+  },
+  "route_probe_limits": [
+    "Settings adapter observed compositor overlay after longer readback; independent observer missed it",
+    "Disconnected HDMI 4 reached its foreground; EIM activation field did not confirm it"
+  ],
+  "remaining": [
+    "clock/status header",
+    "app search/filter/order",
+    "physical remote, pointer and wheel checks",
+    "verified Settings/source routes",
+    "broader controls and audio readings",
+    "actual frame pacing, latency, memory and idle measurements",
+    "reboot persistence"
+  ],
+  "privacy": "Real inventory, icons, native images and detailed receipts stay outside tracked source.",
+  "safety": "No LG Home replacement, Home interception, boot hooks, firmware/system/jail-policy changes or protected setting writes.",
+  "shared_gate": {
+    "command": "make check RUST_NIGHTLY=nightly-2026-07-02",
+    "result": "passed",
+    "source_tree": "509517bdc49512d17aa7c3a7c07db7c26fda5962",
+    "boundary": "Shared library source unchanged; optional client verified separately on code revision 1c736e3"
+  }
+}

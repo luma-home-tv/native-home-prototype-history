@@ -60,8 +60,9 @@ with clearly identified LG-managed routes where direct control is inappropriate.
 The native preview already renders cards and forms on the G2 and has tested
 catalogue identity, gesture cancellation, favourite save/readback and clean
 removal. The normal app has read some catalogue, HDMI and picture endpoints.
-Those milestones do not yet prove a continuously refreshed interface, audio
-status, app/source launch execution, a clock/status rail, search, ordering,
+Later milestones now prove bounded ordinary-app live refresh and launching an
+isolated native test target. They do not establish audio status, verified source
+switching, a clock/status rail, search, ordering,
 setting writes, physical remote/pointer coverage or dashboard performance.
 The render watermark stays visible in every exported concept so these images
 cannot be mistaken for that device evidence.

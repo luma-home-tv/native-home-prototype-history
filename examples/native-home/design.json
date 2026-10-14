@@ -28,7 +28,7 @@
       "purpose": "Immediate access to favourites and inputs",
       "composition": [
         "Header with time/date and device-state summary",
-        "Favourite application shelf using shared cards::Shelf",
+        "Horizontally scrolling favourite application shelf using shared cards::Shelf",
         "Four HDMI input cards with separate plug/signal states",
         "Control-centre entry and return to LG Home"
       ],
@@ -96,7 +96,8 @@
       "Large, readable cards and restrained chrome",
       "Smooth spatial focus movement with a clear foreground selection",
       "Simple Back hierarchy and limited choices on each surface",
-      "Native components and animations; no WebView"
+      "Native components and animations; no WebView",
+      "Home places favourites and clearly labelled HDMI status together; focus supplies the emphasis"
     ]
   },
   "capability_states": [
