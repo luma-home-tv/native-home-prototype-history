@@ -720,6 +720,7 @@ pub fn card_named(p: Painter, frame: Rect, art: Art, fan_name: Option<&str>, rad
             if t != 0 && tw > 0.0 && th > 0.0 {
                 p.tex_carded(t, art_uv(&art, tw, th, r), r, rad, theme::TINT_WHITE, f);
             } else {
+                // placeholder-exempt: intentional local tile without an icon; no asset will arrive
                 p.rrect_sheened(r, rad, theme::CARD_ABSENT);
             }
         }
