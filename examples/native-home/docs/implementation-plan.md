@@ -26,7 +26,7 @@ The shipping architecture uses native rendering, with no WebView.
 | Area | Intended behaviour | Current evidence |
 | --- | --- | --- |
 | Home | Clock/status header, immediate access to favourites and HDMI inputs, control-centre entry and LG Home return | Native favourites grid and live catalogue/status rendered on G2; combined Home layout and clock remain to build |
-| Apps | Complete actionable app drawer, search/filter, pinning and dashboard-only ordering | Registered visible apps joined to launch points; stubs/hidden/invalid targets excluded; live updates and identity/focus checks pass; search/order/launching remain |
+| Apps | Complete actionable app drawer, search/filter, pinning and dashboard-only ordering | Registered visible apps joined to launch points; stubs/hidden/invalid targets excluded; live updates and identity/focus checks pass; normal app launch enabled and isolated native target proof passed; search/order remain |
 | Favourites | Pin/unpin with held OK, save reliably, retain selection across changes | ARM pin/save/readback/relaunch/unpin verified; bounded background writer; reboot survival remains untested |
 | Inputs | Four HDMI cards with distinct plug, signal and active states; select through LG's normal source path | Native cards refreshed through normal-app reads; source selection/readback remain |
 | Controls | Native category/detail pages, correct context, validated choices/ranges and access to the rest through LG Settings | Native category/value pages rendered; four picture values/context refreshed live; write capability and LG Settings launch remain unverified |
@@ -41,10 +41,13 @@ The shipping architecture uses native rendering, with no WebView.
    cycles were applied on the G2. Complete broader coverage, audio and newly
    installed icon loading. Do not treat subscription acknowledgement as delivery
    proof. Keep loading and queues bounded.
-2. **Validate normal actions.** Add app, HDMI and LG Settings adapters with
-   authoritative target checks and foreground/input readback. Exercise app
-   launching first against an isolated test target, avoiding playback or writes
-   to personal viewing records. Keep unknown targets/parameters rejected.
+2. **Complete normal actions.** The restricted application adapter and live
+   drawer/shared-OK path now launch an isolated native test target with both
+   adapter and independent foreground readback. Normal application launching is
+   enabled; personal viewing accounts were not exercised. Finish device proof
+   for the explicit HDMI and LG Settings adapters before enabling them. Keep
+   unknown/hidden/self targets, unvalidated operations and extra parameters
+   rejected; an acknowledged request is not execution proof.
 3. **Expand controls safely.** Audit webOS24 descriptors and semantics for each
    operation. A descriptor alone does not grant write authority. Require valid
    range/enum, matching input/HDR/mode context, bounded effect, readback and an
@@ -79,6 +82,7 @@ the original foreground.
 
 The current evidence is in the [native shell milestone](shell-milestone.json)
 and [favourites/read-capability milestone](preferences-milestone.json), and
-[live-reading milestone](live-milestone.json). Completion
+[live-reading milestone](live-milestone.json) and
+[application-launch milestone](launch-milestone.json). Completion
 requires the intended functional interface and device evidence above, not only
 concept renders, a successful build or component tests.

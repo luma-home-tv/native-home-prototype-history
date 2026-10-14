@@ -29,5 +29,5 @@
   ],
   "upstream_policy": "Keep the standalone Home app isolated from Plex/player. Generic widgets or build fixes can be proposed separately once independently verified; no publication or maintainer messages in this stage.",
   "initial_host_spike_result": "Independent client directly imports plx_ui forms; four host model tests passed. Native rendering/performance of this reused-client build is not yet verified.",
-  "current_result": "Native G2 UI applies periodic ordinary-app catalogue/launch-point/HDMI/picture updates; four real cycles verified. Favourites persist across app launches; injected Back and complete scoped removal pass. Audio attribution denied; sound unavailable. Launch execution, broad controls, physical input, reboot persistence and performance remain ongoing."
+  "current_result": "Native live catalogue/input/picture data, persistent favourites and restricted normal app launch are implemented. Drawer/shared-OK/adapter path launched an isolated native target with independent readback. Complete scoped removal preserved checked core state. HDMI/Settings execution, audio, broad controls, physical input, reboot persistence, final layout and performance remain ongoing."
 }

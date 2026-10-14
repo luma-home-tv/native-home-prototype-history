@@ -53,10 +53,19 @@ not prove subscriptions, external physical changes or launch/write capability.
 Use an unprivileged adapter first and add a restricted helper only where a
 specific operation actually needs it.
 
-The shell emits typed requests for applications, HDMI inputs and LG Settings,
-but the preview **records them without executing them**. It has no setting-write
-action, arbitrary service caller, privileged broker, Home interception or boot
-hook. Unsupported control sections stay with LG Settings. Comprehensive settings
+The shell now executes normal application requests through a restricted typed
+adapter. It requires the dashboard to be foreground, re-reads registered app
+metadata and launch points, rejects hidden/stub/self/unknown targets, sends only
+an app ID to LG's normal launcher and distinguishes admission from foreground
+readback. A separate native test target verified the live-card/shared-OK/adapter
+path on the G2, with an independent foreground observation and target frame.
+The proof package permits only that owned target; the normal client enables the
+validated application operation.
+
+HDMI and LG Settings request execution remain disabled pending their device
+validation. They have explicit adapters and host checks, not hardware proof.
+There is still no setting-write action, arbitrary service caller, privileged
+broker, Home interception or boot hook. Unsupported controls remain read-only. Comprehensive settings
 coverage, broader live data, durable device verification, a restricted executor
 and device performance remain incomplete.
 
@@ -129,3 +138,11 @@ Independent stale/unavailable domains are not displayed as fresh. The app,
 runtime, persistent test folder, jail and mounts were removed with checked core
 hashes and picture/audio readbacks unchanged; the original foreground was
 restored and verified. Real frames and detailed receipts remain private.
+
+The [application-launch milestone](docs/launch-milestone.json) records code
+`8cbf255`: 30 client tests, Clippy and ARM release builds, native drawer gesture
+launch to an isolated target, adapter plus independent readback, target identity
+and frame, and complete removal of both packages and their owned data/mounts.
+Checked core files and picture/audio values stayed unchanged; LG Home and the
+original PlxNative foreground were verified afterward. This is not playback,
+physical remote, HDMI/Settings launch or broad control/performance proof.

@@ -1,0 +1,52 @@
+{
+  "code_revision": "8cbf255",
+  "client_tests": {
+    "passed": 30,
+    "failed": 0
+  },
+  "client_clippy": "passed with warnings denied",
+  "arm_release": "dashboard and isolated target built as ARMv7 softfp",
+  "platform": "OLED55G26LA / webOS24 9.2.2-61 / firmware 23.25.55",
+  "renderer": "Mali-G52",
+  "validated_path": [
+    "live drawer contains separately installed native target",
+    "card focused by stable identity",
+    "scripted shared OK emits Application request",
+    "normal app worker checks own foreground before/after metadata reads",
+    "current visible app plus launch point validated",
+    "fixed launch payload contains only app ID",
+    "adapter foreground readback confirms target",
+    "independent foreground read confirms target",
+    "target runs unprivileged and produces native frame"
+  ],
+  "capabilities": {
+    "application_launch_enabled": true,
+    "input_launch_enabled": false,
+    "lg_settings_launch_enabled": false,
+    "setting_write_action": false
+  },
+  "host_boundaries": [
+    "unknown/invalid/self/hidden/stub target blocked",
+    "unvalidated operation blocked",
+    "unrelated foreground blocked",
+    "input-to-app mapping must match",
+    "unit/struct request rejects extra URI/command/parameters",
+    "admission distinct from verified execution"
+  ],
+  "cleanup": {
+    "both_packages_catalogue_launcher_process_runtime_jail_mounts": "absent",
+    "dashboard_persistent_test_folder": "absent",
+    "checked_core_hashes": "unchanged",
+    "picture_audio_values": "unchanged",
+    "lg_home": "foreground verified",
+    "original_plxnative": "foreground restored and verified",
+    "reboot_required": false
+  },
+  "evidence_limits": [
+    "scripted OK, not physical remote input",
+    "test target only, no personal viewing account/playback validation",
+    "no HDMI/Settings launch proof",
+    "no performance proof"
+  ],
+  "privacy": "Real images, inventory, host/TV configuration and detailed receipts stay outside tracked source."
+}
