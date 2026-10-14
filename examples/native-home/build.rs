@@ -4,6 +4,10 @@ mod host_link;
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed=../../rust-modules/build_support/host_link.rs");
+    if std::env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default()=="arm" {
+        println!("cargo:rustc-link-lib=luna-service2");
+        println!("cargo:rustc-link-lib=glib-2.0");
+    }
     compile_events();
     host_link::emit(&std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../.."));
 }
