@@ -114,7 +114,7 @@ fn explicitly_empty_favourites_stay_empty_after_restart() {
     };
     let s = Shell::new(fixture(), prefs.clone());
     assert!(s.surface.cards.items.is_empty());
-    assert_eq!(focus(&s), RAIL_BASE);
+    assert_eq!(focus(&s), 500);
     let roundtrip: Preferences =
         serde_json::from_str(&serde_json::to_string(&prefs).unwrap()).unwrap();
     assert!(Shell::new(fixture(), roundtrip)
@@ -153,6 +153,7 @@ fn empty_or_unregistered_catalogue_keeps_navigation_available() {
     let _serial = plx_base::testlock::serial();
     let mut fixture = fixture();
     fixture.launch_ids.clear();
+    fixture.inputs.clear();
     let mut s = Shell::new(fixture, Preferences::default());
     assert_eq!(focus(&s), RAIL_BASE);
     s.direction(Dir::Down);
@@ -346,7 +347,7 @@ fn changed_picture_context_and_failed_audio_never_reuse_fresh_control_values() {
 fn explicit_system_routes_use_registered_surface_keys() {
     let _serial = plx_base::testlock::serial();
     let mut s = Shell::new(fixture(), Preferences::default());
-    assert!(!s.focus_input("HDMI_1"));
+    assert!(s.focus_input("HDMI_1"));
     assert!(!s.focus_lg_settings());
     s.open(Page::Inputs);
     assert!(!s.focus_input("HDMI_99"));
@@ -363,4 +364,100 @@ fn explicit_system_routes_use_registered_surface_keys() {
         false,
     );
     assert_eq!(s.take_requests(), vec![Action::OpenLgSettings]);
+}
+
+#[test]
+fn home_shelves_cross_by_geometry_and_keep_input_requests_out_of_favourites() {
+    let _serial = plx_base::testlock::serial();
+    let mut data = fixture();
+    data.inputs = (1..=4)
+        .map(|i| Input {
+            id: format!("HDMI_{i}"),
+            label: format!("HDMI {i}"),
+            plugged: false,
+            signal: false,
+            active: false,
+        })
+        .collect();
+    let mut s = Shell::new(data, Preferences::default());
+    let first = s.focused_item();
+    s.direction(Dir::Right);
+    s.direction(Dir::Right);
+    let chosen = s.focused_item();
+    assert_ne!(chosen, first);
+    s.direction(Dir::Down);
+    assert_eq!(s.focused_item().as_deref(), Some("HDMI_3"));
+    let favourites = s.preferences().clone();
+    s.press(true, PressFrom::Key);
+    for ms in (0..800).step_by(16) {
+        s.tick(ms, 0.016);
+        s.repeat();
+    }
+    assert_eq!(s.preferences(), &favourites);
+    s.press(false, PressFrom::Key);
+    for ms in (816..1100).step_by(16) {
+        s.tick(ms, 0.016);
+    }
+    assert_eq!(
+        s.take_requests(),
+        vec![Action::RequestInput("HDMI_3".into())]
+    );
+    s.direction(Dir::Up);
+    assert_eq!(s.focused_item(), chosen);
+    s.direction(Dir::Left);
+    s.direction(Dir::Left);
+    assert_eq!(s.focused_item(), first);
+}
+
+#[test]
+fn home_updates_inputs_by_identity_without_turning_old_input_readings_into_actions() {
+    let _serial = plx_base::testlock::serial();
+    let mut s = Shell::new(fixture(), Preferences::default());
+    assert!(s.focus_input("HDMI_1"));
+    let mut update = Update {
+        observed_ms: 100,
+        inputs: crate::live::Reading::Value(vec![Input {
+            id: "HDMI_1".into(),
+            label: "Console".into(),
+            plugged: true,
+            signal: true,
+            active: false,
+        }]),
+        ..live_update(100)
+    };
+    s.apply_live(&update, 100);
+    assert_eq!(s.focused_item().as_deref(), Some("HDMI_1"));
+    assert_eq!(
+        s.surface.input_cards.items[0].title.to_str().unwrap(),
+        "Console"
+    );
+    s.press(true, PressFrom::Key);
+    update.observed_ms = 200;
+    update.inputs = crate::live::Reading::Failed("Unavailable".into());
+    s.apply_live(&update, 200);
+    s.press(false, PressFrom::Key);
+    settle(&mut s, 500);
+    assert!(s.take_requests().is_empty());
+    s.press(true, PressFrom::Key);
+    s.press(false, PressFrom::Key);
+    settle(&mut s, 500);
+    assert!(s.take_requests().is_empty());
+}
+
+#[test]
+fn home_focus_springs_report_motion_then_go_quiet_at_rest() {
+    let _serial = plx_base::testlock::serial();
+    let previous = plx_machine::idle::enabled();
+    plx_machine::idle::set_enabled(true);
+    let mut s = Shell::new(fixture(), Preferences::default());
+    settle(&mut s, 2000);
+    s.direction(Dir::Right);
+    let (_, moving) = plx_machine::idle::scoped_motion(|| s.tick(2016, 0.016));
+    assert!(moving, "deliberate shelf focus must keep animating");
+    for ms in (2032..6000).step_by(16) {
+        s.tick(ms, 0.016);
+    }
+    let (_, moving) = plx_machine::idle::scoped_motion(|| s.tick(6016, 0.016));
+    assert!(!moving, "settled shelves must stop reporting spring motion");
+    plx_machine::idle::set_enabled(previous);
 }

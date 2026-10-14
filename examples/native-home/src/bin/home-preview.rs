@@ -1,4 +1,4 @@
-//! Bounded native shell with ordinary-app live reads. Requests remain unexecuted.
+//! Bounded native shell with ordinary-app live reads and capability-gated launch requests.
 use native_home::{
     model::Page,
     preferences::Persistence,

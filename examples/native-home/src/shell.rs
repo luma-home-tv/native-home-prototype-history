@@ -1,6 +1,6 @@
 //! The interactive application shell. Focus, hit resolution, press ownership and card motion
 //! come from plx_ui. Only dashboard preferences are writable in this slice; TV actions are
-//! typed requests whose executor is a separate, not-yet-enabled boundary.
+//! typed requests checked by a separate, capability-gated executor.
 use std::collections::{BTreeMap, BTreeSet};
 use std::ffi::CString;
 
@@ -9,13 +9,13 @@ use plx_machine::machine::{
     MachineId, PressArm, PressFrom, PressRead, ScreenArg, ScreenId, Tick,
 };
 use plx_machine::present::Present;
-use plx_ui::cards::{CardSource, Grid, GridSpec, RowStyle, Tile, TileLabel};
+use plx_ui::cards::{CardSource, Grid, GridSpec, RowStyle, SectionFrame, Shelf, Tile, TileLabel};
 use plx_ui::form::{Form, FormSection, FormTable, RowKey, RowKind};
 use plx_ui::input::{InputMachine, PressEvent};
 use plx_ui::label::{HAlign, Label};
 use plx_ui::screen::{
     Activate, At, AxisMask, By, Dir, DrawFrame, EdgeRule, ElemKind, FocusTarget, Focusable,
-    GroupKind, GroupSpec, Hover, Placed, ScreenEvent, Seat, Step, Stop,
+    GroupKind, GroupSpec, Hover, Link, Placed, ScreenEvent, Seat, Step, Stop,
 };
 use plx_ui::table::Row;
 use plx_ui::widgets::{Art, LegacyMeasure};
@@ -43,6 +43,25 @@ const INPUT_STYLE: RowStyle = RowStyle {
     h: 158.0,
     gap: 32.0,
     ..CARD_STYLE
+};
+const HOME_APP_STYLE: RowStyle = RowStyle {
+    w: 270.0,
+    h: 218.0,
+    gap: 44.0,
+    margin_x: 566.0,
+    ..CARD_STYLE
+};
+const HOME_INPUT_STYLE: RowStyle = RowStyle {
+    margin_x: 566.0,
+    ..INPUT_STYLE
+};
+const HOME_FAVOURITES: SectionFrame = SectionFrame {
+    y: 330.0,
+    clip: Rect::new(526.0, 292.0, 1298.0, 320.0),
+};
+const HOME_INPUTS: SectionFrame = SectionFrame {
+    y: 716.0,
+    clip: Rect::new(526.0, 678.0, 1298.0, 282.0),
 };
 const TABS: [(Page, &str); 4] = [
     (Page::Home, "Home"),
@@ -152,14 +171,22 @@ impl CardSource<HomeHost> for Cards {
     }
     fn label(&self, i: usize) -> TileLabel {
         let c = &self.items[i];
+        if input_key(&c.id).is_some() {
+            // Every source keeps its status in the tile; a focused long name uses the
+            // shared label marquee beneath it, like every other card.
+            return TileLabel {
+                title: Some(c.title.clone()),
+                ..Default::default()
+            };
+        }
         TileLabel {
             title: Some(c.title.clone()),
             caption: Some(c.caption.clone()),
             ..Default::default()
         }
     }
-    fn holdable(&self, _i: usize) -> bool {
-        true
+    fn holdable(&self, i: usize) -> bool {
+        input_key(&self.items[i].id).is_none()
     }
     fn overlay(
         &self,
@@ -169,7 +196,42 @@ impl CardSource<HomeHost> for Cards {
         _measure: &dyn plx_machine::machine::Measure,
     ) {
         let c = &self.items[i];
-        if c.texture.0 == 0 {
+        if input_key(&c.id).is_some() {
+            let inset = tile.rect.w * 0.07;
+            Label::new(c.title.as_ptr(), theme::size::HEADLINE, theme::TEXT_PRIMARY)
+                .bold()
+                .draw(
+                    p,
+                    Rect::new(
+                        tile.rect.x + inset,
+                        tile.rect.y + inset,
+                        tile.rect.w - 2.0 * inset,
+                        tile.rect.h * 0.48,
+                    ),
+                );
+            let (connection, signal) = c
+                .caption
+                .to_str()
+                .unwrap_or("")
+                .split_once('\n')
+                .unwrap_or(("Unavailable", ""));
+            for (text, top) in [(connection, 0.49), (signal, 0.70)] {
+                Label::new(
+                    cstr(text).as_ptr(),
+                    theme::size::CAPTION,
+                    theme::TEXT_SECONDARY,
+                )
+                .draw(
+                    p,
+                    Rect::new(
+                        tile.rect.x + inset,
+                        tile.rect.y + tile.rect.h * top,
+                        tile.rect.w - 2.0 * inset,
+                        tile.rect.h * 0.21,
+                    ),
+                );
+            }
+        } else if c.texture.0 == 0 {
             Label::new(
                 c.initials.as_ptr(),
                 theme::size::DISPLAY,
@@ -186,6 +248,9 @@ struct Surface {
     page: Page,
     grid: Grid,
     cards: Cards,
+    home_favourites: Shelf,
+    home_inputs: Shelf,
+    input_cards: Cards,
     rail: FormTable<String, Action, Page>,
     table: FormTable<String, Action, Page>,
     table_mode: bool,
@@ -223,7 +288,12 @@ impl Surface {
                 .filter_map(|i| self.table.key_at(i).map(|k| TABLE_BASE + k.0))
                 .collect()
         } else {
-            self.cards.items.iter().map(|c| c.key).collect()
+            self.cards
+                .items
+                .iter()
+                .chain(self.input_cards.items.iter())
+                .map(|c| c.key)
+                .collect()
         }
     }
     fn key_index(&self, k: u32) -> Option<usize> {
@@ -236,12 +306,25 @@ impl Focusable<HomeHost> for Surface {
             id: GroupId(0),
             kind: GroupKind::Column,
             seat: Seat::Remembered,
-            reachable: AxisMask::BOTH,
+            reachable: AxisMask::HORIZONTAL,
             edge: [EdgeRule::Geometric; 4],
             extent: RAIL,
             len: 4,
             elem: ElemKind::Control,
         });
+        if self.page == Page::Home {
+            out.push(self.home_favourites.group_spec(
+                GroupId(1),
+                self.cards.len(),
+                HOME_FAVOURITES.clip,
+            ));
+            out.push(self.home_inputs.group_spec(
+                GroupId(2),
+                self.input_cards.len(),
+                HOME_INPUTS.clip,
+            ));
+            return;
+        }
         out.push(GroupSpec {
             id: GroupId(1),
             kind: if self.table_mode {
@@ -267,11 +350,25 @@ impl Focusable<HomeHost> for Surface {
     fn group_of(&self, key: &u32, _cx: &Cx<'_, HomeHost>) -> Option<GroupId> {
         if (RAIL_BASE..RAIL_BASE + 4).contains(key) {
             Some(GroupId(0))
+        } else if self.input_cards.index_of(key).is_some() {
+            Some(GroupId(2))
         } else {
             self.key_index(*key).map(|_| GroupId(1))
         }
     }
     fn neighbour(&self, key: FocusKey<u32>, dir: Dir, _cx: &Cx<'_, HomeHost>) -> Step<u32> {
+        if self.page == Page::Home {
+            if self.cards.index_of(&key.elem).is_some() {
+                return self
+                    .home_favourites
+                    .neighbour::<HomeHost, _>(&self.cards, key, dir);
+            }
+            if self.input_cards.index_of(&key.elem).is_some() {
+                return self
+                    .home_inputs
+                    .neighbour::<HomeHost, _>(&self.input_cards, key, dir);
+            }
+        }
         let rail = (RAIL_BASE..RAIL_BASE + 4).contains(&key.elem);
         let keys = if rail {
             (RAIL_BASE..RAIL_BASE + 4).collect::<Vec<_>>()
@@ -317,6 +414,13 @@ impl Focusable<HomeHost> for Surface {
                 clip: CONTENT,
                 index: Some(i as u32),
             })
+        } else if self.page == Page::Home {
+            self.home_favourites
+                .place(cx, &self.cards, key, HOME_FAVOURITES, at)
+                .or_else(|| {
+                    self.home_inputs
+                        .place(cx, &self.input_cards, key, HOME_INPUTS, at)
+                })
         } else {
             self.grid.place(cx, &self.cards, key, at)
         }
@@ -338,6 +442,14 @@ impl Focusable<HomeHost> for Surface {
                     .iter()
                     .position(|(p, _)| *p == root_tab(self.page))
                     .unwrap_or(0) as u32
+        } else if self.page == Page::Home {
+            let seat = if group == GroupId(2) {
+                self.home_inputs
+                    .seat::<HomeHost, _>(&self.input_cards, from)
+            } else {
+                self.home_favourites.seat::<HomeHost, _>(&self.cards, from)
+            };
+            seat.map(|k| k.elem).unwrap_or(RAIL_BASE)
         } else {
             let keys = self.keys();
             let mut best = keys.first().copied().unwrap_or(RAIL_BASE);
@@ -448,6 +560,9 @@ impl Shell {
                 GridSpec::new(282.0, 260.0).columns(4, CARD_STYLE, 566.0),
             ),
             cards: Cards { items: Vec::new() },
+            home_favourites: Shelf::new(entry(page), &HOME_APP_STYLE),
+            home_inputs: Shelf::new(entry(page), &HOME_INPUT_STYLE),
+            input_cards: Cards { items: Vec::new() },
             rail: rt,
             table: FormTable::new(2000),
             table_mode: false,
@@ -510,26 +625,9 @@ impl Shell {
             }
             Page::Inputs => {
                 self.surface.grid.set_columns(4, INPUT_STYLE, 566.0);
-                for (i, input) in self.snapshot.inputs.iter().enumerate() {
-                    let caption = if input.active {
-                        "Active input"
-                    } else if input.signal {
-                        "Signal present"
-                    } else if input.plugged {
-                        "Connected • no signal"
-                    } else {
-                        "Not connected"
-                    };
-                    self.surface.cards.items.push(Card {
-                        key: input_key(&input.id).unwrap_or(500 + i as u32),
-                        id: input.id.clone(),
-                        title: cstr(&input.label),
-                        caption: cstr(caption),
-                        initials: cstr(&format!("HDMI {}", i + 1)),
-                        texture: (0, 0.0, 0.0),
-                    });
-                }
+                self.surface.cards = self.input_cards();
             }
+
             Page::Controls => {
                 self.surface.table_mode = true;
                 let mut section = FormSection::new("Controls");
@@ -572,6 +670,9 @@ impl Shell {
                     .set(controls_form(settings, &self.snapshot.context), None);
             }
         }
+        if page == Page::Home {
+            self.surface.input_cards = self.input_cards();
+        }
         let owner = InputOwner::Entry(entry(page));
         let old = self.input.engine.current(owner);
         let cx = Cx::<HomeHost> {
@@ -588,12 +689,50 @@ impl Shell {
             FocusTarget::ContainerGroup(GroupId(if self.surface.keys().is_empty() {
                 0
             } else {
-                1
+                if page == Page::Home && self.surface.cards.items.is_empty() {
+                    2
+                } else {
+                    1
+                }
             })),
             old,
             &cx,
         );
         self.moved(outcome);
+    }
+    fn input_cards(&self) -> Cards {
+        Cards {
+            items: self
+                .snapshot
+                .inputs
+                .iter()
+                .filter_map(|input| {
+                    let key = input_key(&input.id)?;
+                    let caption = format!(
+                        "{}{}\n{}",
+                        if input.active { "Active • " } else { "" },
+                        if input.plugged {
+                            "Connected"
+                        } else {
+                            "No cable"
+                        },
+                        if input.signal {
+                            "Signal present"
+                        } else {
+                            "No signal"
+                        }
+                    );
+                    Some(Card {
+                        key,
+                        id: input.id.clone(),
+                        title: cstr(&input.label),
+                        caption: cstr(&caption),
+                        initials: cstr(&input.id.replace('_', " ")),
+                        texture: (0, 0.0, 0.0),
+                    })
+                })
+                .collect(),
+        }
     }
     pub fn apply_live(&mut self, update: &Update, now: u32) {
         let before = self.snapshot.clone();
@@ -629,7 +768,12 @@ impl Shell {
     fn refresh_shown_data(&mut self, before: &Snapshot) {
         let page = self.surface.page;
         let changed = match page {
-            Page::Home | Page::Applications => {
+            Page::Home => {
+                before.applications != self.snapshot.applications
+                    || before.launch_ids != self.snapshot.launch_ids
+                    || before.inputs != self.snapshot.inputs
+            }
+            Page::Applications => {
                 before.applications != self.snapshot.applications
                     || before.launch_ids != self.snapshot.launch_ids
             }
@@ -650,8 +794,18 @@ impl Shell {
                 GridSpec::new(282.0, 260.0).columns(4, CARD_STYLE, 566.0),
             ),
         );
+        let favourites = std::mem::replace(
+            &mut self.surface.home_favourites,
+            Shelf::new(entry(page), &HOME_APP_STYLE),
+        );
+        let inputs = std::mem::replace(
+            &mut self.surface.home_inputs,
+            Shelf::new(entry(page), &HOME_INPUT_STYLE),
+        );
         self.rebuild(page);
         self.surface.grid = grid;
+        self.surface.home_favourites = favourites;
+        self.surface.home_inputs = inputs;
         let owner = InputOwner::Entry(entry(page));
         if let Some(to) = self.input.engine.current(owner) {
             self.moved(plx_ui::focus::Outcome::Moved {
@@ -661,16 +815,12 @@ impl Shell {
             });
         }
     }
-    fn request_is_current(&self) -> bool {
+    fn request_is_current(&self, input: bool) -> bool {
         let Some(fresh) = &self.live_state else {
             return true;
         };
         Freshness::current(
-            if self.surface.page == Page::Inputs {
-                fresh.inputs
-            } else {
-                fresh.catalogue
-            },
+            if input { fresh.inputs } else { fresh.catalogue },
             self.live_now,
         )
     }
@@ -772,12 +922,27 @@ impl Shell {
                 focus: cx.focus.clone(),
                 owner: cx.owner,
             };
-            self.surface.grid.on(
-                &ScreenEvent::FocusMoved { from, to, by },
-                &read,
-                &self.surface.cards,
-                &mut fx,
-            );
+            if self.surface.page == Page::Home {
+                self.surface.home_favourites.on(
+                    &ScreenEvent::FocusMoved { from, to, by },
+                    &read,
+                    &self.surface.cards,
+                    &mut fx,
+                );
+                self.surface.home_inputs.on(
+                    &ScreenEvent::FocusMoved { from, to, by },
+                    &read,
+                    &self.surface.input_cards,
+                    &mut fx,
+                );
+            } else {
+                self.surface.grid.on(
+                    &ScreenEvent::FocusMoved { from, to, by },
+                    &read,
+                    &self.surface.cards,
+                    &mut fx,
+                );
+            }
         }
     }
     pub fn direction(&mut self, dir: Dir) {
@@ -794,10 +959,26 @@ impl Shell {
             focus: self.input.engine.read(owner),
             owner,
         };
+        let links = if self.surface.page == Page::Home {
+            vec![
+                Link {
+                    from: GroupId(1),
+                    dir: Dir::Down,
+                    to: GroupId(2),
+                },
+                Link {
+                    from: GroupId(2),
+                    dir: Dir::Up,
+                    to: GroupId(1),
+                },
+            ]
+        } else {
+            Vec::new()
+        };
         let outcome = self
             .input
             .engine
-            .move_dir(owner, &self.surface, &[], dir, &cx);
+            .move_dir(owner, &self.surface, &links, dir, &cx);
         self.moved(outcome);
     }
     pub fn cancel_press(&mut self) {
@@ -901,24 +1082,37 @@ impl Shell {
             }
             return;
         }
-        let Some(i) = self.surface.cards.index_of(&key.elem) else {
+        let Some(card) = self
+            .surface
+            .cards
+            .items
+            .iter()
+            .chain(self.surface.input_cards.items.iter())
+            .find(|c| c.key == key.elem)
+        else {
             return;
         };
-        let id = self.surface.cards.items[i].id.clone();
-        if hold && matches!(self.surface.page, Page::Home | Page::Applications) {
+        let id = card.id.clone();
+        let input = input_key(&id).is_some();
+        if hold && !input && matches!(self.surface.page, Page::Home | Page::Applications) {
             if !self.prefs.favourites.remove(&id) {
                 self.prefs.favourites.insert(id);
             }
             self.preferences_changed = true;
             self.rebuild(self.surface.page);
         } else {
-            if !self.request_is_current() {
+            if !self.request_is_current(input) {
                 self.status = cstr("Reading unavailable • refresh before opening this item");
                 return;
             }
-            self.status =
-                cstr("Application/source request — connection is not enabled in this pilot");
-            self.pending.push(if self.surface.page == Page::Inputs {
+            self.status = cstr(if input {
+                "Source switching is unavailable in this preview"
+            } else if self.app_launches_enabled {
+                "Opening application…"
+            } else {
+                "Application launching is unavailable in this preview"
+            });
+            self.pending.push(if input {
                 Action::RequestInput(id)
             } else {
                 Action::RequestApplication(id)
@@ -952,12 +1146,27 @@ impl Shell {
         let mut buf = Vec::new();
         let mut present = Present::new();
         let mut fx = Effects::new(&mut buf, MachineId::Input, &mut present);
-        self.surface.grid.on(
-            &ScreenEvent::Tick(cx.tick),
-            &cx,
-            &self.surface.cards,
-            &mut fx,
-        );
+        if self.surface.page == Page::Home {
+            self.surface.home_favourites.on(
+                &ScreenEvent::Tick(cx.tick),
+                &cx,
+                &self.surface.cards,
+                &mut fx,
+            );
+            self.surface.home_inputs.on(
+                &ScreenEvent::Tick(cx.tick),
+                &cx,
+                &self.surface.input_cards,
+                &mut fx,
+            );
+        } else {
+            self.surface.grid.on(
+                &ScreenEvent::Tick(cx.tick),
+                &cx,
+                &self.surface.cards,
+                &mut fx,
+            );
+        }
         let current = cx.focus.current.map(|k| k.elem);
         self.surface.rail.table.list_focused =
             current.is_some_and(|k| (RAIL_BASE..RAIL_BASE + 4).contains(&k));
@@ -984,17 +1193,13 @@ impl Shell {
         let ground = theme::SURFACE_APP;
         plx_gfx::gfx::frame_clear(ground[0], ground[1], ground[2]);
         Label::new(
-            c"Native Home".as_ptr(),
+            cstr(self.surface.page.title().unwrap_or("Home")).as_ptr(),
             theme::size::DISPLAY,
             theme::TEXT_PRIMARY,
         )
         .bold()
         .draw(p, Rect::new(96.0, 60.0, 1320.0, 76.0));
-        let subtitle = cstr(&format!(
-            "{}  •  {}",
-            self.surface.page.title().unwrap_or("Home"),
-            self.reading_label()
-        ));
+        let subtitle = cstr(&self.reading_label());
         Label::new(
             subtitle.as_ptr(),
             theme::size::CAPTION,
@@ -1016,6 +1221,56 @@ impl Shell {
                 .table
                 .table
                 .draw_page(p, CONTENT, &LegacyMeasure);
+        } else if self.surface.page == Page::Home {
+            Label::new(
+                c"Favourites".as_ptr(),
+                theme::size::HEADLINE,
+                theme::TEXT_PRIMARY,
+            )
+            .bold()
+            .draw(p, Rect::new(566.0, 244.0, 1180.0, 48.0));
+            let source_heading = if self
+                .live_state
+                .as_ref()
+                .is_some_and(|fresh| !Freshness::current(fresh.inputs, self.live_now))
+            {
+                c"Inputs • status unavailable"
+            } else {
+                c"Inputs"
+            };
+            Label::new(
+                source_heading.as_ptr(),
+                theme::size::HEADLINE,
+                theme::TEXT_PRIMARY,
+            )
+            .bold()
+            .draw(p, Rect::new(566.0, 628.0, 1180.0, 48.0));
+            if self.surface.cards.items.is_empty() {
+                Label::new(
+                    c"Hold OK on an app to add a favourite".as_ptr(),
+                    theme::size::BODY,
+                    theme::TEXT_SECONDARY,
+                )
+                .draw(p, Rect::new(566.0, 366.0, 1180.0, 100.0));
+            }
+            {
+                let _clip = f.clip(p, HOME_FAVOURITES.clip);
+                self.surface.home_favourites.draw(
+                    &mut f,
+                    p.clipped(HOME_FAVOURITES.clip),
+                    &self.surface.cards,
+                    HOME_FAVOURITES,
+                );
+            }
+            {
+                let _clip = f.clip(p, HOME_INPUTS.clip);
+                self.surface.home_inputs.draw(
+                    &mut f,
+                    p.clipped(HOME_INPUTS.clip),
+                    &self.surface.input_cards,
+                    HOME_INPUTS,
+                );
+            }
         } else {
             let _clip = f.clip(p, CONTENT);
             self.surface
@@ -1094,10 +1349,17 @@ impl Shell {
         true
     }
     pub fn focus_input(&mut self, id: &str) -> bool {
-        if self.surface.page != Page::Inputs {
+        if !matches!(self.surface.page, Page::Home | Page::Inputs) {
             return false;
         }
-        let Some(card) = self.surface.cards.items.iter().find(|c| c.id == id) else {
+        let Some(card) = self
+            .surface
+            .cards
+            .items
+            .iter()
+            .chain(self.surface.input_cards.items.iter())
+            .find(|c| c.id == id)
+        else {
             return false;
         };
         let owner = InputOwner::Entry(entry(self.surface.page));
@@ -1107,7 +1369,11 @@ impl Shell {
                 entry: entry(self.surface.page),
                 elem: card.key,
             },
-            Some(GroupId(1)),
+            Some(GroupId(if self.surface.page == Page::Home {
+                2
+            } else {
+                1
+            })),
             By::Restore,
         );
         self.moved(outcome);
@@ -1146,6 +1412,7 @@ impl Shell {
                 .cards
                 .items
                 .iter()
+                .chain(self.surface.input_cards.items.iter())
                 .find(|c| c.key == key.elem)
                 .map(|c| c.id.clone())
         }
