@@ -18,6 +18,7 @@ plx_base = { path = "../../rust-modules/base" }
 plx_platform = { path = "../../rust-modules/platform" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+libc = "0.2"
 
 [features]
 hostsim = ["plx_gfx/hostsim", "plx_base/hostsim", "plx_platform/hostsim"]
