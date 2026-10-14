@@ -12,7 +12,7 @@ import tempfile
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
-BG, PANEL, INK, MUTED, HAIRLINE = '#2c2c2e', '#222224', '#f7fafc', '#b8bfcc', '#48484c'
+BG, PANEL, INK, MUTED, HAIRLINE = '#000000', '#222224', '#f7fafc', '#b8bfcc', '#48484c'
 ACCENT, DARK = INK, '#08080a'
 ART = ['#394852', '#54473d', '#404650', '#514454', '#415049', '#524e40']
 SIZES = {'display': 48, 'title': 40, 'headline': 32, 'body': 28, 'label': 26, 'caption': 24}
@@ -20,7 +20,7 @@ SIZES = {'display': 48, 'title': 40, 'headline': 32, 'body': 28, 'label': 26, 'c
 
 class Canvas:
     def __init__(self):
-        self.parts = [f'<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080"><title>Native Home design mockup — synthetic data</title><rect width="1920" height="1080" fill="{BG}"/>']
+        self.parts = [f'<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080"><title>Luma Home design mockup — synthetic data</title><rect width="1920" height="1080" fill="{BG}"/>']
 
     def rect(self, x, y, w, h, fill=PANEL, radius=24, stroke=None, sw=1):
         extra = f' stroke="{stroke}" stroke-width="{sw}"' if stroke else ''
@@ -54,7 +54,7 @@ class Canvas:
         self.text(x+width/2, y+35, label, 'caption', DARK if selected else MUTED, 600 if selected else 400, 'middle')
 
     def header(self, section):
-        self.text(96, 112, 'Native Home', 'display', weight=600)
+        self.text(96, 112, 'Luma Home', 'display', weight=600)
         self.text(96, 163, section, 'label', MUTED)
         self.text(1824, 112, '19:42', 'display', weight=500, anchor='end')
         self.text(1824, 163, 'Wednesday, 14 October', 'caption', MUTED, anchor='end')

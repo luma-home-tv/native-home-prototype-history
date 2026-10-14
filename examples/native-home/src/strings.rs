@@ -8,7 +8,7 @@ pub enum Message {
 impl Message {
     pub const fn text(self) -> &'static str {
         match self {
-            Self::AppTitle => "Native Home",
+            Self::AppTitle => "Luma Home",
             Self::Applications => "Applications",
             Self::Controls => "Controls",
             Self::CurrentSettings => "Current settings",

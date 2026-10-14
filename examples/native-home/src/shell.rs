@@ -548,7 +548,7 @@ impl Shell {
         shell
     }
     fn blank(page: Page) -> Surface {
-        let mut rail = FormSection::new("Native Home");
+        let mut rail = FormSection::new("Luma Home");
         for (i, (p, title)) in TABS.into_iter().enumerate() {
             rail = rail.item_keyed(
                 title.to_owned(),
@@ -1197,7 +1197,7 @@ impl Shell {
     }
     pub fn draw(&mut self) {
         let p = Painter::root();
-        let ground = theme::SURFACE_APP;
+        let ground = theme::SURFACE_OLED;
         plx_gfx::gfx::frame_clear(ground[0], ground[1], ground[2]);
         Label::new(
             cstr(self.surface.page.title().unwrap_or("Home")).as_ptr(),

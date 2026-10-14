@@ -102,7 +102,7 @@ impl Window {
                 }
             }
             let window = SDL_CreateWindow(
-                c"Native Home Preview".as_ptr(),
+                c"Luma Home Preview".as_ptr(),
                 0,
                 0,
                 1920,

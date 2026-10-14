@@ -394,6 +394,9 @@ pub const CONTROL_CAST_FOCUS: [(f32, f32, f32); 2] = [(5.0, 32.0, 0.34), (1.0, 6
 /// MEDIUM gray, deliberately not near-black: the focused-card drop-shadow only reads against a base
 /// this light (on the old near-black 25,25,29 a black shadow had almost nothing to darken).
 pub const SURFACE_APP: [f32; 4] = NEUTRAL_500;
+/// Opt-in true-black canvas for OLED dashboards; raised cards keep their own surface roles.
+/// This does not change the shared default app surface or LG panel protection behaviour.
+pub const SURFACE_OLED: [f32; 4] = BLACK;
 /// Opaque sheet drawn over the hardware video plane when a detail page scrolls the hero away.
 /// Same stop as [`SURFACE_APP`] so the rising page and the cover are one surface. Different role:
 /// this hides the plane. It is not atmosphere, so [`scrim`] is the wrong token.

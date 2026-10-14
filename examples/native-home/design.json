@@ -1,5 +1,5 @@
 {
-  "title": "Native Home interface",
+  "title": "Luma Home interface",
   "concepts": {
     "index": "docs/concepts/README.md",
     "overview": "docs/concepts/overview.png",
@@ -88,7 +88,7 @@
   },
   "style": {
     "basis": "PlxNative shared tokens and components",
-    "background": "OLED-friendly dark palette",
+    "background": "True black OLED canvas; graphite tiles and control surfaces",
     "animations": "Short transform/opacity transitions with bounded render caches",
     "idle": "Render only on meaningful changes; hidden app suspends activity",
     "reference": "Apple TV / tvOS feel, following the native PlxNative interpretation",
@@ -98,7 +98,9 @@
       "Simple Back hierarchy and limited choices on each surface",
       "Native components and animations; no WebView",
       "Home places favourites and clearly labelled HDMI status together; focus supplies the emphasis"
-    ]
+    ],
+    "branding": "Independent Luma Home open-frame L mark; assets/luma-home",
+    "idle_protection": "Minimise persistent bright elements while idle; preserve LG panel protections. Black canvas is not a burn-in guarantee."
   },
   "capability_states": [
     "Native view",

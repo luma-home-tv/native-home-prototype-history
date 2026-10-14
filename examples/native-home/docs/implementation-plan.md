@@ -1,4 +1,4 @@
-# Native Home implementation plan
+# Luma Home implementation plan
 
 The target is a responsive native Home dashboard for the OLED55G26LA on webOS24.
 It remains a separate application: LG Home, Home/power/volume handling, firmware,
@@ -22,6 +22,12 @@ SDL/OpenGL ES libraries. Reuse its components instead of maintaining a second
 widget system. Generic improvements can be proposed upstream separately after
 verification; the Home client does not change the Plex application or player.
 The shipping architecture uses native rendering, with no WebView.
+
+The canvas is true black for OLED. Graphite remains available for tiles and
+controls, with bright focus/ink limited to useful areas. Idle behaviour must
+minimise static bright elements without changing LG's panel protections. The
+[branding masters](../../../assets/luma-home/README.md) record the icon, wordmark
+and palette; a black background is not treated as proof of burn-in prevention.
 
 | Area | Intended behaviour | Current evidence |
 | --- | --- | --- |

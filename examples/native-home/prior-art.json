@@ -1,5 +1,5 @@
 {
-  "selected": "PlxNative shared native UI on a dedicated local branch",
+  "selected": "PlxNative shared native UI for the independent Luma Home client",
   "base_revision": "d507c4f9ed5b4ecd88ce9b2e998c50da506e6271",
   "candidates": [
     {
@@ -27,7 +27,7 @@
       "decision": "No public repository found by exact-name GitHub search; website inaccessible in audit; not a verifiable fork base yet"
     }
   ],
-  "upstream_policy": "Keep the standalone Home app isolated from Plex/player. Generic widgets or build fixes can be proposed separately once independently verified; no publication or maintainer messages in this stage.",
+  "upstream_policy": "Preserve GPL attribution and upstream history. Publish Luma Home independently with its own identity. Keep the Home client isolated from Plex/player; propose generic improvements upstream separately after verification.",
   "initial_host_spike_result": "Independent client directly imports plx_ui forms; four host model tests passed. Native rendering/performance of this reused-client build is not yet verified.",
   "current_result": "Native live catalogue/input/picture data, persistent favourites and restricted normal app launch are implemented. Drawer/shared-OK/adapter path launched an isolated native target with independent readback. Complete scoped removal preserved checked core state. HDMI/Settings execution, audio, broad controls, physical input, reboot persistence, final layout and performance remain ongoing."
 }

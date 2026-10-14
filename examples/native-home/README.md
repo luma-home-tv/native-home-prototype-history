@@ -1,6 +1,6 @@
-# Native Home
+# Luma Home native client
 
-A separate native Home application built on PlxNative's shared UI libraries, in
+A separate native Home application for Luma Home, built on PlxNative's shared UI libraries, in
 an optional example/client rather than in the Plex application. The selected
 prior art and compatibility boundaries are recorded in `prior-art.json` and
 `design.json`. Derived source remains GPL-3.0-or-later; no LG system component is
