@@ -6,7 +6,7 @@ import subprocess
 
 parser = argparse.ArgumentParser()
 parser.add_argument('target', choices=('host', 'arm', 'test'))
-parser.add_argument('--bin', choices=('control-preview', 'home-preview'), default='control-preview')
+parser.add_argument('--bin', choices=('control-preview', 'home-preview', 'launch-target'), default='control-preview')
 args = parser.parse_args()
 here = Path(__file__).resolve().parent
 repo = here.parents[1]

@@ -13,3 +13,5 @@ pub mod preferences;
 pub mod native_probe;
 
 pub mod live;
+
+pub mod actions;

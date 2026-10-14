@@ -67,11 +67,14 @@ pub struct Window {
 }
 impl Window {
     pub fn new(visible: bool) -> Result<Self, Box<dyn std::error::Error>> {
+        Self::create(visible, "com.ash.nativehome.preview")
+    }
+    pub fn launch_target() -> Result<Self, Box<dyn std::error::Error>> {
+        Self::create(true, "com.ash.nativehome.targetproof")
+    }
+    fn create(visible: bool, expected_id: &str) -> Result<Self, Box<dyn std::error::Error>> {
         let device = cfg!(target_arch = "arm");
-        if device
-            && (unsafe { libc::geteuid() } == 0
-                || plx_base::paths::app_id() != "com.ash.nativehome.preview")
-        {
+        if device && (unsafe { libc::geteuid() } == 0 || plx_base::paths::app_id() != expected_id) {
             return Err("Refusing root or unexpected package identity".into());
         }
         if device {

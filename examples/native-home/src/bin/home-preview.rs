@@ -72,6 +72,31 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         )?);
     }
     let mut live_history = Vec::new();
+    let proof_path = assets.join("launch-proof.json");
+    let mut launch_proof = None;
+    if proof_path.exists() {
+        let bytes = std::fs::read(proof_path)?;
+        if bytes.len() > 1024 {
+            return Err("Oversized launch proof".into());
+        }
+        launch_proof = Some(serde_json::from_slice::<native_home::actions::Request>(
+            &bytes,
+        )?);
+    }
+    #[allow(unused_mut)]
+    let mut action_worker = None;
+    #[cfg(target_arch = "arm")]
+    if device && launch_proof.is_some() {
+        action_worker = Some(native_home::actions::Worker::native(
+            plx_base::paths::app_id().into(),
+            native_home::actions::Capabilities {
+                apps: true,
+                inputs: false,
+                settings: false,
+            },
+        )?);
+    }
+    let mut action_receipts = Vec::new();
     let state_path = if device {
         PathBuf::from("/media/developer/.com.ash.nativehome.preview-state")
     } else {
@@ -183,12 +208,42 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         queue_preferences(&mut shell, &mut persistence, &mut storage_error);
     }
     shell.open(Page::Home);
+    let mut requests = Vec::new();
+    let mut proof_target = None;
+    if let Some(request) = launch_proof {
+        match request {
+            native_home::actions::Request::Application { id }
+                if id == "com.ash.nativehome.targetproof" =>
+            {
+                shell.open(Page::Applications);
+                if !shell.focus_application(&id) {
+                    return Err("Launch target is not in the live drawer".into());
+                }
+                shell.press(true, PressFrom::Key);
+                now += 50;
+                shell.tick(now, 0.05);
+                shell.press(false, PressFrom::Key);
+                for _ in 0..30 {
+                    now += 17;
+                    shell.tick(now, 1.0 / 60.0);
+                }
+                proof_target = Some(id);
+            }
+            _ => return Err("Only the isolated launch target is allowed in this proof".into()),
+        }
+    }
+    dispatch_requests(
+        &mut shell,
+        &action_worker,
+        proof_target.as_deref(),
+        &mut requests,
+    );
     let start = Instant::now();
     let mut last = start;
     let mut events = 0;
     let mut event_log = Vec::new();
     let mut hidden_at: Option<Instant> = None;
-    let mut requests = Vec::new();
+
     let mut reason = "capture_complete";
     if !capture_only {
         reason = "timeout";
@@ -263,7 +318,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             if storage_error.is_some() {
                 shell.storage_notice("Favourites could not be saved • previous data kept");
             }
-            requests.extend(shell.take_requests().into_iter().map(|a| format!("{a:?}")));
+            if let Some(worker) = &action_worker {
+                action_receipts.extend(worker.poll());
+            }
+            dispatch_requests(
+                &mut shell,
+                &action_worker,
+                proof_target.as_deref(),
+                &mut requests,
+            );
             if hidden_at.is_none() {
                 shell.draw();
                 window.swap();
@@ -277,6 +340,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         if shell.should_exit() {
             reason = "back_from_home";
         }
+    }
+    if let Some(worker) = action_worker {
+        action_receipts.extend(worker.finish());
     }
     if let Some(worker) = live_worker {
         worker.finish();
@@ -309,7 +375,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         || (loaded_preferences.as_ref() == Some(shell.preferences()) && storage_error.is_none());
     let report = serde_json::json!({"device":device,"app_id":plx_base::paths::app_id(),"uid":unsafe{libc::geteuid()},"renderer":window.renderer,
         "drawable":[1920,1080],"events":events,"event_log":event_log,"exit_reason":reason,"requests_not_executed":requests,
-        "setting_writes":false,"application_launches":false,"data":if shell.live_updates()>0{if device{"ordinary app live readings"}else{"simulated live readings"}}else{"captured TV snapshot"},"live_updates":shell.live_updates(),"live_history":live_history,"preferences":shell.preferences(),
+        "setting_writes":false,"application_launches":action_receipts.iter().any(|r|r.admitted),"action_receipts":action_receipts,"data":if shell.live_updates()>0{if device{"ordinary app live readings"}else{"simulated live readings"}}else{"captured TV snapshot"},"live_updates":shell.live_updates(),"live_history":live_history,"preferences":shell.preferences(),
         "preferences_at_boot":preferences_at_boot,"preferences_loaded":loaded_preferences.is_some(),"preferences_readback_confirmed":persistent_readback,
         "storage_error":storage_error,"native_read_probe_registered":native_api_probe.as_ref().and_then(|v|v.get("registered")),"storage_class":if device{"developer media"}else{"host instance"},"hold_probe_identity":probe_identity,"hold_probe_changed":probe_changed,
         "performance_validated":false,"scripted_navigation":{"focus":navigation,"page_after_ok":navigation_page,"passed":navigation_page=="Inputs","requests_not_executed":scripted_requests},"elapsed_seconds":start.elapsed().as_secs_f64()});
@@ -372,4 +438,31 @@ fn poll_live(
         shell.apply_live(&update, origin.elapsed().as_millis() as u32);
     }
     shell.age_live(origin.elapsed().as_millis() as u32);
+}
+
+fn dispatch_requests(
+    shell: &mut Shell,
+    worker: &Option<native_home::actions::Worker>,
+    proof_target: Option<&str>,
+    unexecuted: &mut Vec<String>,
+) {
+    for action in shell.take_requests() {
+        let Some(request) = native_home::actions::Request::from_action(action.clone()) else {
+            unexecuted.push(format!("{action:?}"));
+            continue;
+        };
+        let allowed = matches!((&request,proof_target),(native_home::actions::Request::Application{id},Some(target))if id==target);
+        if allowed {
+            if let Some(worker) = worker {
+                match worker.queue(request) {
+                    Ok(()) => {
+                        shell.storage_notice("Opening application…");
+                        continue;
+                    }
+                    Err(error) => shell.storage_notice(&error),
+                }
+            }
+        }
+        unexecuted.push(format!("{action:?}"));
+    }
 }

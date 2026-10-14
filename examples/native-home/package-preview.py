@@ -13,12 +13,12 @@ repo = here.parents[1]
 output = Path(os.environ['NATIVE_HOME_BUILD_DIR']).resolve()
 sdk = Path(os.environ['NATIVE_HOME_WEBOS_SDK']).resolve()
 binary = Path(os.environ['NATIVE_HOME_ARM_BINARY']).resolve()
-app_id = 'com.ash.nativehome.preview'
+main = binary.name
+app_id = 'com.ash.nativehome.targetproof' if main == 'launch-target' else 'com.ash.nativehome.preview'
 stage = output / 'preview-package/usr/palm/applications' / app_id
 stage.mkdir(parents=True, exist_ok=False)
-main = binary.name
-if main not in ('control-preview', 'home-preview'): raise ValueError('Unexpected preview binary')
-version = '0.4.0' if main == 'home-preview' else '0.1.0'
+if main not in ('control-preview', 'home-preview', 'launch-target'): raise ValueError('Unexpected preview binary')
+version = '0.5.0' if main == 'home-preview' else '0.1.0'
 shutil.copy2(binary, stage / main)
 (stage / main).chmod(0o755)
 for name in ('appfont.ttf', 'appfont-bold.ttf', 'OFL.txt'):
@@ -27,7 +27,7 @@ for name in ('appfont.ttf', 'appfont-bold.ttf', 'OFL.txt'):
 icon = Path(os.environ['NATIVE_HOME_PREVIEW_ICON']).resolve()
 shutil.copy2(icon, stage / 'icon.png')
 info = {'id': app_id, 'version': version, 'vendor': 'Native Home development',
-        'type': 'native', 'main': main, 'title': 'Native Home Preview',
+        'type': 'native', 'main': main, 'title': 'Native Launch Target' if main == 'launch-target' else 'Native Home Preview',
         'appDescription': 'Isolated native interface preview; no TV actions or settings writes',
         'icon': 'icon.png', 'largeIcon': 'icon.png', 'transparent': False,
         'nativeLifeCycleInterfaceVersion': 2, 'handlesRelaunch': False,
@@ -37,6 +37,8 @@ if main == 'home-preview':
     assets = Path(os.environ['NATIVE_HOME_SNAPSHOT_ASSETS']).resolve()
     snapshot = json.loads((assets / 'snapshot.json').read_text())
     shutil.copy2(assets / 'snapshot.json', stage / 'snapshot.json')
+    if os.environ.get('NATIVE_HOME_LAUNCH_PROOF') == '1':
+        (stage / 'launch-proof.json').write_text(json.dumps({'kind':'Application','id':'com.ash.nativehome.targetproof'})+'\n')
     if os.environ.get('NATIVE_HOME_PREFERENCES_PROBE') == '1':
         shutil.copy2(assets / 'preferences-hold-probe.json', stage / 'preferences-hold-probe.json')
     if os.environ.get('NATIVE_HOME_NATIVE_READ_PROBE') == '1':
@@ -78,6 +80,7 @@ receipt = {'app_id': app_id, 'ipk': str(ipk), 'sha256': hashlib.sha256(ipk.read_
            'binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest(), 'bytes': ipk.stat().st_size,
            'preference_hold_probe': os.environ.get('NATIVE_HOME_PREFERENCES_PROBE') == '1',
            'native_read_probe': os.environ.get('NATIVE_HOME_NATIVE_READ_PROBE') == '1',
+           'launch_proof': os.environ.get('NATIVE_HOME_LAUNCH_PROOF') == '1',
            'permissions': [], 'services': [], 'boot_hooks': [], 'system_files': []}
 (output / 'preview-package-receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
 print(json.dumps(receipt))
