@@ -198,7 +198,14 @@ impl CardSource<HomeHost> for Cards {
         let c = &self.items[i];
         if input_key(&c.id).is_some() {
             let inset = tile.rect.w * 0.07;
-            Label::new(c.title.as_ptr(), theme::size::HEADLINE, theme::TEXT_PRIMARY)
+            let title = cstr(&plx_gfx::text::elide(
+                c.title.to_str().unwrap_or(""),
+                tile.rect.w - 2.0 * inset,
+                theme::size::HEADLINE,
+                1,
+                false,
+            ));
+            Label::new(title.as_ptr(), theme::size::HEADLINE, theme::TEXT_PRIMARY)
                 .bold()
                 .draw(
                     p,
