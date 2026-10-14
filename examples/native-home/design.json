@@ -1,0 +1,116 @@
+{
+  "title": "Native Home interface",
+  "viewport": {
+    "logical_width": 1920,
+    "logical_height": 1080,
+    "text_floor": "plx_ui::theme::size::CAPTION",
+    "rendering": "native SDL2/OpenGL ES; no WebView"
+  },
+  "navigation": [
+    "Home",
+    "Applications",
+    "Inputs",
+    "Controls"
+  ],
+  "screens": {
+    "Home": {
+      "purpose": "Immediate access to favourites and inputs",
+      "composition": [
+        "Header with time/date and device-state summary",
+        "Favourite application shelf using shared cards::Shelf",
+        "Four HDMI input cards with separate plug/signal states",
+        "Control-centre entry and return to LG Home"
+      ],
+      "initial_focus": "Last deliberate favourite or first available favourite"
+    },
+    "Applications": {
+      "purpose": "Complete installed-app drawer",
+      "composition": [
+        "Alphabetical native card grid",
+        "Favourites filter and search",
+        "Context menu for dashboard-only pin/order preferences"
+      ],
+      "source": "Authoritative launch points joined to app metadata",
+      "exclude": [
+        "hidden services",
+        "store stubs",
+        "invalid IDs",
+        "unregistered targets"
+      ],
+      "identity": "Stable application ID; keys survive refresh and rename"
+    },
+    "Inputs": {
+      "purpose": "Choose and inspect TV sources",
+      "composition": [
+        "Four HDMI tiles",
+        "Plug, signal and active-input states",
+        "Input name and format when available"
+      ],
+      "activation": "Typed source-selection request through LG application manager; no decoder replacement"
+    },
+    "Controls": {
+      "purpose": "One native entry point for settings",
+      "composition": [
+        "Master/detail category navigation",
+        "Native value rows and choice/range widgets",
+        "Current input / dynamic range / picture-mode breadcrumb",
+        "Visible capability state and LG Settings fallback"
+      ],
+      "categories": [
+        "Picture",
+        "Sound",
+        "Network",
+        "Accessibility",
+        "General",
+        "Panel Care"
+      ],
+      "pilot": "Read-only; no setting-write action exists"
+    }
+  },
+  "interaction": {
+    "arrows": "Shared focus engine and card/form components",
+    "ok": "Commit the action owned by the focused item",
+    "back": "Close overlay, return to parent, then exit at root",
+    "pointer": "Shared hit map; focus by current item identity",
+    "wheel": "Scroll within focused surface",
+    "home_volume_power": "Remain LG-managed"
+  },
+  "style": {
+    "basis": "PlxNative shared tokens and components",
+    "background": "OLED-friendly dark palette",
+    "animations": "Short transform/opacity transitions with bounded render caches",
+    "idle": "Render only on meaningful changes; hidden app suspends activity"
+  },
+  "capability_states": [
+    "Native view",
+    "Validated native control",
+    "Open in LG Settings",
+    "Unavailable in current context",
+    "Protected / managed by LG"
+  ],
+  "protected": [
+    "firmware and system partitions",
+    "system libraries and jail policy",
+    "network reconfiguration",
+    "factory reset",
+    "calibration / service menu",
+    "OLED protection changes and compensation scheduling"
+  ],
+  "data_boundary": {
+    "root_access": "Restricted local helper only, after peer/caller validation",
+    "ui": "Unprivileged application; no generic shell or arbitrary Luna calls",
+    "staleness": "Context changes invalidate old setting values and pending actions",
+    "root_helper_installation": "No automatic boot hook; separate staged proof"
+  },
+  "reuse": {
+    "native_ui": "plx_ui with plx_gfx, plx_machine, plx_platform and plx_base",
+    "tv_compatibility": "Glasshouse as audited API/semantic reference; MIT attribution retained if code is ported",
+    "upstream_shape": "Optional independent native Home example plus small generic UI improvements; stable Plex app unchanged"
+  },
+  "verification": {
+    "host": "Catalogue safety, focus identity, context invalidation, protected actions",
+    "visual": "Native simulator captures inspected at couch text sizes",
+    "device": "Isolated package; native frames, physical input, runtime/memory and removal checks on webOS 24",
+    "proof_boundary": "Earlier C renderer results do not transfer to this new reused-UI build"
+  }
+}

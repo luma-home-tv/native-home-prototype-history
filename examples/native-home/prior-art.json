@@ -1,0 +1,32 @@
+{
+  "selected": "PlxNative shared native UI on a dedicated local branch",
+  "base_revision": "d507c4f9ed5b4ecd88ce9b2e998c50da506e6271",
+  "candidates": [
+    {
+      "name": "PlxNative",
+      "url": "https://github.com/GLinnik21/plx-native",
+      "license": "GPL-3.0-or-later",
+      "fit": "Native UI stack already split into shared crates; card/form/focus/navigation components fit a separate Home app",
+      "decision": "Use path dependencies initially; prove independent client before broad framework changes"
+    },
+    {
+      "name": "Glasshouse",
+      "url": "https://github.com/rorygallagher2024/glasshouse",
+      "license": "MIT",
+      "fit": "Broad webOS controls and compatibility knowledge, browser frontend",
+      "decision": "Use as audited adapter/reference source; do not install full boot/system integration"
+    },
+    {
+      "name": "Custom webOS Home / Lumen / webos-launcher",
+      "fit": "Launcher navigation and Home entry patterns; web-rendered frontend",
+      "decision": "Design/reference only; renderer does not meet native requirement"
+    },
+    {
+      "name": "ProjectHiten",
+      "fit": "Native Qt/QML claim matches intention",
+      "decision": "No public repository found by exact-name GitHub search; website inaccessible in audit; not a verifiable fork base yet"
+    }
+  ],
+  "upstream_policy": "Keep the standalone Home app isolated from Plex/player. Generic widgets or build fixes can be proposed separately once independently verified; no publication or maintainer messages in this stage.",
+  "host_spike_result": "Independent client directly imports plx_ui forms; four host model tests passed. Native rendering/performance of this reused-client build is not yet verified."
+}
