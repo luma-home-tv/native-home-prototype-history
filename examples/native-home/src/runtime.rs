@@ -74,6 +74,11 @@ impl Window {
         {
             return Err("Refusing root or unexpected package identity".into());
         }
+        if device {
+            // SDL_webOS.h's app-local Back opt-in, also used by upstream main.c. Home,
+            // power and volume policies are deliberately left to LG.
+            std::env::set_var("SDL_WEBOS_ACCESS_POLICY_KEYS_BACK", "true");
+        }
         unsafe {
             let limit = libc::rlimit {
                 rlim_cur: 0,
