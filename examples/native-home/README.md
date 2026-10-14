@@ -36,24 +36,29 @@ own persistent folder as well as its package/runtime/jail/mounts.
 `collect-snapshot.py` reads registered apps/launch points, bounded icon files,
 HDMI status and picture/audio values over SSH. It never installs, launches or
 changes anything on the TV. Its output is a private build artifact. The renderer
-labels this data as a captured snapshot, not live state. HDMI plug, signal and
-active state are distinct. Settings include their input/dynamic-range/mode
+uses this as its labelled startup snapshot and bounded local icon source. The
+normal app now polls validated catalogue/launch-point, HDMI and picture getters
+on a separate worker, applying typed updates to the native screens. HDMI plug,
+signal and active state are distinct. Settings include their input/dynamic-range/mode
 context; protected, unavailable or stale rows cannot activate.
 
 The normal app's read-only native API probe successfully read the app catalogue,
 launch points, HDMI status and the enumerated picture values on webOS24. The audio
-getter returned `Message status unknown.` from that identity; the cause and a
-working audio path are not yet established. This proves those getter calls, not
-live refresh in the rendered UI, subscriptions or launch/write capability. It
-supports using an unprivileged adapter first and adding a restricted helper only
-where a specific operation actually needs it.
+getter returned `Message status unknown.` from that identity. Attaching the real
+app ID through `LSCallFromApplicationOneReply` was rejected by the bus with code
+`-1031` (not privileged). That denied attribution path is omitted from polling;
+a working audio route remains unresolved. The later live-reading milestone
+proved four successive real updates applied to the native G2 interface. It does
+not prove subscriptions, external physical changes or launch/write capability.
+Use an unprivileged adapter first and add a restricted helper only where a
+specific operation actually needs it.
 
 The shell emits typed requests for applications, HDMI inputs and LG Settings,
 but the preview **records them without executing them**. It has no setting-write
 action, arbitrary service caller, privileged broker, Home interception or boot
 hook. Unsupported control sections stay with LG Settings. Comprehensive settings
-coverage, live refresh, durable device verification, a restricted executor and device
-performance remain incomplete.
+coverage, broader live data, durable device verification, a restricted executor
+and device performance remain incomplete.
 
 ## Build and verification
 
@@ -115,3 +120,12 @@ The storage/read-capability slice is recorded in
 [its milestone record](docs/preferences-milestone.json). It passed 17 client tests,
 Clippy and the ARM release link on `8aca0a6`. No shared upstream source changed
 since the earlier full gate; only the optional client/package changed.
+
+The [live-reading milestone](docs/live-milestone.json) records code revision
+`30c02f3`: 25 client checks, Clippy, ARM release link and four native read cycles
+applied during the G2 run. Updates preserve app identity/favourites; unchanged
+updates retain an armed gesture, while vanished/changed targets cancel it.
+Independent stale/unavailable domains are not displayed as fresh. The app,
+runtime, persistent test folder, jail and mounts were removed with checked core
+hashes and picture/audio readbacks unchanged; the original foreground was
+restored and verified. Real frames and detailed receipts remain private.

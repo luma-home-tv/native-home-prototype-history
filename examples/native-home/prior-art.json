@@ -29,5 +29,5 @@
   ],
   "upstream_policy": "Keep the standalone Home app isolated from Plex/player. Generic widgets or build fixes can be proposed separately once independently verified; no publication or maintainer messages in this stage.",
   "initial_host_spike_result": "Independent client directly imports plx_ui forms; four host model tests passed. Native rendering/performance of this reused-client build is not yet verified.",
-  "current_result": "Six native pages, scripted navigation/injected Back and clean removal verified on webOS24/Mali-G52. Favourites save and reload across app launches. Ordinary app identity reads catalogue/launch points/HDMI/picture; audio getter failed and remains unresolved. Live execution, physical input, reboot persistence and performance remain ongoing."
+  "current_result": "Native G2 UI applies periodic ordinary-app catalogue/launch-point/HDMI/picture updates; four real cycles verified. Favourites persist across app launches; injected Back and complete scoped removal pass. Audio attribution denied; sound unavailable. Launch execution, broad controls, physical input, reboot persistence and performance remain ongoing."
 }

@@ -1,0 +1,64 @@
+{
+  "code_revision": "30c02f3",
+  "design_direction": "Native Apple TV / tvOS feel using PlxNative shared components",
+  "client_tests": {
+    "passed": 25,
+    "failed": 0
+  },
+  "clippy": "passed with warnings denied",
+  "arm_release_link": "passed",
+  "platform": "OLED55G26LA / webOS24 9.2.2-61 / firmware 23.25.55",
+  "renderer": "Mali-G52",
+  "drawable": [
+    1920,
+    1080
+  ],
+  "live_proof": {
+    "native_cycles_applied": 4,
+    "simulated": false,
+    "operations": [
+      "catalogue joined to launch points",
+      "four HDMI status records",
+      "four picture values with context"
+    ],
+    "polling": "separate normal-app worker; latest update only",
+    "subscriptions_proven": false,
+    "external_physical_change_proven": false,
+    "frames_inspected": true
+  },
+  "host_behaviour_proof": [
+    "success and shape required for freshness",
+    "own app/hidden/stub targets excluded",
+    "stable port/app identities",
+    "focus/favourites survive rename/reorder",
+    "unchanged update preserves press",
+    "vanished/changed target cancels prior press",
+    "failed/expired readings cannot request launch",
+    "picture context and values update together",
+    "unavailable audio cannot reuse cached values as fresh"
+  ],
+  "audio_boundary": {
+    "ordinary_call": "Message status unknown.",
+    "own_app_attribution": "transport setup refusal -1031: not privileged",
+    "polling": "denied attribution excluded; sound marked unavailable",
+    "working_route": "not established"
+  },
+  "cleanup": {
+    "package_catalogue_launcher_process_runtime_state_jail_mounts": "absent",
+    "checked_core_hashes": "unchanged",
+    "picture_audio_readbacks": "unchanged",
+    "lg_home": "foreground verified",
+    "original_plxnative": "restored and foreground verified",
+    "reboot_required": false
+  },
+  "not_proven": [
+    "launch/source executor",
+    "setting writes",
+    "physical remote/pointer/wheel",
+    "newly installed icon loading",
+    "reboot persistence",
+    "complete settings coverage",
+    "performance"
+  ],
+  "privacy": "Real images, snapshots, inventory, host/TV configuration and detailed receipts remain outside tracked source."
+}

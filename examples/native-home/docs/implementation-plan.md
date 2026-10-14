@@ -25,21 +25,22 @@ The shipping architecture uses native rendering, with no WebView.
 
 | Area | Intended behaviour | Current evidence |
 | --- | --- | --- |
-| Home | Clock/status header, immediate access to favourites and HDMI inputs, control-centre entry and LG Home return | Native favourites grid and navigation rendered on G2; combined Home layout and live header remain to build |
-| Apps | Complete actionable app drawer, search/filter, pinning and dashboard-only ordering | Registered visible apps joined to launch points; stubs/hidden/invalid targets excluded; identity/focus checks pass; search/order/launching remain |
+| Home | Clock/status header, immediate access to favourites and HDMI inputs, control-centre entry and LG Home return | Native favourites grid and live catalogue/status rendered on G2; combined Home layout and clock remain to build |
+| Apps | Complete actionable app drawer, search/filter, pinning and dashboard-only ordering | Registered visible apps joined to launch points; stubs/hidden/invalid targets excluded; live updates and identity/focus checks pass; search/order/launching remain |
 | Favourites | Pin/unpin with held OK, save reliably, retain selection across changes | ARM pin/save/readback/relaunch/unpin verified; bounded background writer; reboot survival remains untested |
-| Inputs | Four HDMI cards with distinct plug, signal and active states; select through LG's normal source path | Native cards rendered and ordinary app identity reads all four status records; source selection/readback remain |
-| Controls | Native category/detail pages, correct context, validated choices/ranges and access to the rest through LG Settings | Native category/value pages rendered; four picture values read directly; write capability and LG Settings launch remain unverified |
+| Inputs | Four HDMI cards with distinct plug, signal and active states; select through LG's normal source path | Native cards refreshed through normal-app reads; source selection/readback remain |
+| Controls | Native category/detail pages, correct context, validated choices/ranges and access to the rest through LG Settings | Native category/value pages rendered; four picture values/context refreshed live; write capability and LG Settings launch remain unverified |
 | Navigation | Remote focus, safe tap/hold, Back hierarchy, pointer and wheel | Shared-machine tests and scripted ARM navigation pass; injected Back reaches SDL and exits; physical remote/pointer/wheel proof remains |
 | Performance | Smooth transitions, bounded memory and render only when needed | Native Mali-G52 rendering proved; this client has no validated FPS, latency, memory or idle result yet |
 
 ## Next implementation stages
 
-1. **Connect live data.** Turn the validated ordinary-app getters into a typed
-   provider for catalogue, launch points, HDMI and picture state. Preserve keys,
-   remembered focus and favourites when data changes. Distinguish fresh, stale,
-   unavailable and context-mismatched values. Do not treat a subscription
-   acknowledgement as proof that updates arrive. Keep icon loading bounded.
+1. **Expand live data.** The typed normal-app provider now refreshes catalogue,
+   launch points, HDMI and picture state in the native interface. Focus/favourites,
+   unchanged gestures and stale/context failure handling have checks; four real
+   cycles were applied on the G2. Complete broader coverage, audio and newly
+   installed icon loading. Do not treat subscription acknowledgement as delivery
+   proof. Keep loading and queues bounded.
 2. **Validate normal actions.** Add app, HDMI and LG Settings adapters with
    authoritative target checks and foreground/input readback. Exercise app
    launching first against an isolated test target, avoiding playback or writes
@@ -77,6 +78,7 @@ checked core hashes and picture/audio readbacks, then verify LG Home and restore
 the original foreground.
 
 The current evidence is in the [native shell milestone](shell-milestone.json)
-and [favourites/read-capability milestone](preferences-milestone.json). Completion
+and [favourites/read-capability milestone](preferences-milestone.json), and
+[live-reading milestone](live-milestone.json). Completion
 requires the intended functional interface and device evidence above, not only
 concept renders, a successful build or component tests.
