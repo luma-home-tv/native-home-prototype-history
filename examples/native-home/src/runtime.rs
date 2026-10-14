@@ -36,7 +36,7 @@ extern "C" {
     fn glGetError() -> u32;
     fn native_home_poll(event: *mut Event) -> c_int;
 }
-#[derive(Default, Debug)]
+#[derive(Default, Debug, serde::Serialize)]
 #[repr(C)]
 pub struct Event {
     pub kind: u32,

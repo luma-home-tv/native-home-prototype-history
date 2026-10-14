@@ -107,6 +107,16 @@ pub fn application_form(catalogue: &Catalogue) -> Form<String, Action, Page> {
     Form::new().section(section)
 }
 
+fn display_value(setting: &Setting) -> &str {
+    match (setting.id.as_str(), setting.value.as_str()) {
+        ("soundOutput", "external_optical") => "Optical",
+        ("muteStatus", "false" | "False") => "Off",
+        ("muteStatus", "true" | "True") => "On",
+        ("pictureMode", "game") => "Game",
+        _ => &setting.value,
+    }
+}
+
 pub fn controls_form(settings: &[Setting], current: &Context) -> Form<String, Action, Page> {
     let mut section = FormSection::new(Message::CurrentSettings.text());
     for setting in settings {
@@ -114,7 +124,7 @@ pub fn controls_form(settings: &[Setting], current: &Context) -> Form<String, Ac
         let detail = if setting.protected { Message::ManagedByLg.text() }
             else if unavailable { Message::UnavailableContext.text() }
             else { "" };
-        let value = if unavailable { "Unavailable" } else { &setting.value };
+        let value = if unavailable { "Unavailable" } else { display_value(setting) };
         section = section.item_keyed(setting.id.clone(), RowKey(setting.focus_key), RowKind::Button,
             Action::Inspect(setting.id.clone()), Row::new(&setting.label).detail(detail).value(value).server_value())
             .disabled(unavailable || setting.protected);
@@ -176,6 +186,16 @@ mod tests {
         assert_eq!(table.activate(1), None);
         assert_eq!(table.table.sections[0].rows[1].value.as_deref(), Some("Unavailable"));
         assert_eq!(table.activate(2), Some(Activation::Action(Action::OpenLgSettings)));
+    }
+
+    #[test]
+    fn displayed_labels_preserve_raw_state_and_never_hide_staleness() {
+        let mut output=setting("soundOutput",false);output.value="external_optical".into();
+        let mut table=FormTable::new(2000);table.set(controls_form(&[output.clone()],&context()),None);
+        assert_eq!(table.table.sections[0].rows[0].value.as_deref(),Some("Optical"));
+        assert_eq!(output.value,"external_optical");
+        let mut changed=context();changed.input="HDMI_2".into();table.set(controls_form(&[output],&changed),None);
+        assert_eq!(table.table.sections[0].rows[0].value.as_deref(),Some("Unavailable"));assert_eq!(table.activate(0),None);
     }
 
     #[test]

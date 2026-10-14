@@ -45,7 +45,7 @@ const INPUT_STYLE: RowStyle = RowStyle {
 };
 const TABS: [(Page, &str); 4] = [
     (Page::Home, "Home"),
-    (Page::Applications, "Applications"),
+    (Page::Applications, "Apps"),
     (Page::Inputs, "Inputs"),
     (Page::Controls, "Controls"),
 ];

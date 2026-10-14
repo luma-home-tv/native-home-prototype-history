@@ -88,6 +88,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let start = Instant::now();
     let mut last = start;
     let mut events = 0;
+    let mut event_log = Vec::new();
+    let mut hidden_at: Option<Instant> = None;
     let mut requests = Vec::new();
     let mut reason = "capture_complete";
     if !capture_only {
@@ -101,12 +103,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             while let Some(e) = poll() {
                 events += 1;
                 match e.kind {
-                    1 | 7 => {
-                        reason = "window_closed_or_hidden";
+                    1 => {
+                        reason = "window_closed";
                         shell.cancel_press();
-                        break;
                     }
-                    2 => match e.key {
+                    7 | 8 => {
+                        shell.cancel_press();
+                        hidden_at.get_or_insert(current);
+                    }
+                    9 => {
+                        hidden_at = None;
+                    }
+                    2 if hidden_at.is_none() || e.key == 6 => match e.key {
                         1 => shell.direction(Dir::Up),
                         2 => shell.direction(Dir::Down),
                         3 => shell.direction(Dir::Left),
@@ -122,21 +130,34 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         _ => {}
                     },
                     3 if e.key == 5 => shell.press(false, PressFrom::Key),
-                    4 | 5 => shell.pointer(e.x as f32, e.y as f32, e.kind == 5),
-                    6 => {
+                    4 | 5 if hidden_at.is_none() => {
+                        shell.pointer(e.x as f32, e.y as f32, e.kind == 5)
+                    }
+                    6 if hidden_at.is_none() => {
                         for _ in 0..e.wheel.unsigned_abs().min(3) {
                             shell.direction(if e.wheel > 0 { Dir::Up } else { Dir::Down });
                         }
                     }
                     _ => {}
                 }
+                if event_log.len() < 32 {
+                    event_log.push(e);
+                }
             }
-            if reason == "window_closed_or_hidden" {
+            if reason == "window_closed" {
+                break;
+            }
+            // LG may queue focus loss before Back. Stop drawing while hidden, but drain the
+            // window's own queue briefly so the actual key can be observed before teardown.
+            if hidden_at.is_some_and(|t| t.elapsed() >= Duration::from_millis(500)) {
+                reason = "window_hidden";
                 break;
             }
             requests.extend(shell.take_requests().into_iter().map(|a| format!("{a:?}")));
-            shell.draw();
-            window.swap();
+            if hidden_at.is_none() {
+                shell.draw();
+                window.swap();
+            }
             // Bounded 60 Hz host cap also handles compositors whose swap does not block.
             let elapsed = current.elapsed();
             if elapsed < Duration::from_micros(16_667) {
@@ -148,7 +169,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
     let report = serde_json::json!({"device":device,"app_id":plx_base::paths::app_id(),"uid":unsafe{libc::geteuid()},"renderer":window.renderer,
-        "drawable":[1920,1080],"events":events,"exit_reason":reason,"requests_not_executed":requests,
+        "drawable":[1920,1080],"events":events,"event_log":event_log,"exit_reason":reason,"requests_not_executed":requests,
         "setting_writes":false,"application_launches":false,"data":"captured TV snapshot","preferences":shell.preferences(),
         "performance_validated":false,"scripted_navigation":{"focus":navigation,"page_after_ok":navigation_page,"passed":navigation_page=="Inputs","requests_not_executed":scripted_requests},"elapsed_seconds":start.elapsed().as_secs_f64()});
     let mut file = std::fs::OpenOptions::new()

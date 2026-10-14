@@ -12,7 +12,9 @@ int native_home_poll(HomeEvent *out) {
         if(e.type==SDL_QUIT) {out->kind=1;return 1;}
         if(e.type==SDL_WINDOWEVENT) {
             if(e.window.event==SDL_WINDOWEVENT_CLOSE) {out->kind=1;return 1;}
-            if(e.window.event==SDL_WINDOWEVENT_FOCUS_LOST||e.window.event==SDL_WINDOWEVENT_HIDDEN||e.window.event==SDL_WINDOWEVENT_MINIMIZED) {out->kind=7;return 1;}
+            if(e.window.event==SDL_WINDOWEVENT_FOCUS_LOST) {out->kind=7;return 1;}
+            if(e.window.event==SDL_WINDOWEVENT_HIDDEN||e.window.event==SDL_WINDOWEVENT_MINIMIZED) {out->kind=8;return 1;}
+            if(e.window.event==SDL_WINDOWEVENT_FOCUS_GAINED||e.window.event==SDL_WINDOWEVENT_SHOWN||e.window.event==SDL_WINDOWEVENT_RESTORED) {out->kind=9;return 1;}
         }
         if(e.type==SDL_KEYDOWN||e.type==SDL_KEYUP) {
             out->kind=e.type==SDL_KEYDOWN?2:3;out->repeat=e.key.repeat;out->scan=e.key.keysym.scancode;
