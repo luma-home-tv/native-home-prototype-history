@@ -10,6 +10,18 @@ pub fn collect() -> serde_json::Value {
             return json!({"registered":false,"error":error.to_string(),"uid":unsafe{libc::geteuid()},"writes":false})
         }
     };
+    let mut value = read(&bus, plx_base::paths::app_id());
+    value["registered"] = serde_json::json!(true);
+    value["uid"] = serde_json::json!(unsafe { libc::geteuid() });
+    value
+}
+#[cfg(target_arch = "arm")]
+pub(crate) fn read(
+    bus: &plx_platform::webos::ls2::Registration,
+    own_id: &str,
+) -> serde_json::Value {
+    use plx_platform::webos::ls2;
+    use serde_json::json;
     let operations = [
         (
             "apps",
@@ -39,11 +51,22 @@ pub fn collect() -> serde_json::Value {
     ];
     let mut replies = serde_json::Map::new();
     for (name, uri, payload) in operations {
-        let result = match bus.call(
-            uri,
-            &payload.to_string(),
-            std::time::Duration::from_millis(1500),
-        ) {
+        let response = if name == "audio" {
+            // Attach only this process's real app identity, never impersonate another caller.
+            bus.call_as_app(
+                uri,
+                &payload.to_string(),
+                own_id,
+                std::time::Duration::from_millis(1500),
+            )
+        } else {
+            bus.call(
+                uri,
+                &payload.to_string(),
+                std::time::Duration::from_millis(1500),
+            )
+        };
+        let result = match response {
             Ok(raw) => serde_json::from_str(&raw).unwrap_or_else(|_| json!({"parse_error":true})),
             Err(ls2::Fail::Timeout) => json!({"timeout":true}),
             Err(ls2::Fail::Setup {

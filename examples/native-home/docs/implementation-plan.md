@@ -12,6 +12,11 @@ requirements; the milestone records below identify what has actually been proved
 
 ## Direction
 
+The agreed visual direction is the Apple TV / tvOS feel that PlxNative interprets
+well: large cards, restrained chrome, smooth spatial focus and an obvious Back
+hierarchy. Keep this native and remote-first. The concepts are a starting point;
+remove unnecessary screen furniture as the interactive screens take shape.
+
 Build the optional Home client on PlxNative's shared Rust UI, input/focus and
 SDL/OpenGL ES libraries. Reuse its components instead of maintaining a second
 widget system. Generic improvements can be proposed upstream separately after

@@ -122,6 +122,7 @@ pub fn controls_form(settings: &[Setting], current: &Context) -> Form<String, Ac
     for setting in settings {
         let unavailable = !setting.available || !setting.still_current(current);
         let detail = if setting.protected { Message::ManagedByLg.text() }
+            else if !setting.available { "Reading unavailable" }
             else if unavailable { Message::UnavailableContext.text() }
             else { "" };
         let value = if unavailable { "Unavailable" } else { display_value(setting) };

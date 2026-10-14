@@ -187,3 +187,115 @@ fn app_picker_restores_registered_identity_from_a_remembered_rail_without_accept
     assert!(!s.focus_application("HDMI_1"));
     assert!(s.take_requests().is_empty());
 }
+
+fn live_update(ms: u32) -> crate::live::Update {
+    use crate::live::{CatalogueReading, PictureReading, Reading, Update};
+    let data = fixture();
+    Update {
+        observed_ms: ms,
+        simulated: true,
+        catalogue: Reading::Value(CatalogueReading {
+            apps: data.applications,
+            launch_ids: data.launch_ids,
+        }),
+        inputs: Reading::Value(data.inputs),
+        picture: Reading::Value(PictureReading {
+            context: data.context,
+            settings: Vec::new(),
+        }),
+        sound: Reading::Failed("Unavailable".into()),
+    }
+}
+#[test]
+fn unchanged_live_refresh_preserves_an_armed_gesture_and_app_identity() {
+    let _serial = plx_base::testlock::serial();
+    let mut s = Shell::new(fixture(), Preferences::default());
+    s.open(Page::Applications);
+    s.tick(100, 0.016);
+    s.apply_live(&live_update(100), 100);
+    s.press(true, PressFrom::Key);
+    s.apply_live(&live_update(110), 110);
+    assert!(s.input.arm.is_some());
+    s.tick(150, 0.016);
+    s.press(false, PressFrom::Key);
+    for ms in (160..560).step_by(16) {
+        s.tick(ms, 0.016);
+    }
+    assert_eq!(
+        s.take_requests(),
+        vec![Action::RequestApplication("com.example.app00".into())]
+    );
+}
+#[test]
+fn rename_reorder_keeps_focus_and_favourites_but_removal_cancels_the_old_press() {
+    let _serial = plx_base::testlock::serial();
+    let mut s = Shell::new(fixture(), Preferences::default());
+    s.open(Page::Applications);
+    s.focus_application("com.example.app01");
+    let prefs = s.preferences().clone();
+    let mut update = live_update(10);
+    let crate::live::Reading::Value(ref mut c) = update.catalogue else {
+        unreachable!()
+    };
+    c.apps.reverse();
+    c.apps
+        .iter_mut()
+        .find(|a| a.id == "com.example.app01")
+        .unwrap()
+        .title = "Zulu".into();
+    s.apply_live(&update, 10);
+    assert_eq!(s.focused_item().as_deref(), Some("com.example.app01"));
+    assert_eq!(s.preferences(), &prefs);
+    s.press(true, PressFrom::Key);
+    let crate::live::Reading::Value(ref mut c) = update.catalogue else {
+        unreachable!()
+    };
+    c.apps.retain(|a| a.id != "com.example.app01");
+    c.launch_ids.remove("com.example.app01");
+    s.apply_live(&update, 20);
+    s.press(false, PressFrom::Key);
+    settle(&mut s, 400);
+    assert_ne!(s.focused_item().as_deref(), Some("com.example.app01"));
+    assert!(s.take_requests().is_empty());
+}
+#[test]
+fn failed_or_expired_live_catalogue_keeps_cards_but_cannot_request_launch() {
+    let _serial = plx_base::testlock::serial();
+    let mut s = Shell::new(fixture(), Preferences::default());
+    s.open(Page::Applications);
+    let mut update = live_update(0);
+    s.apply_live(&update, 0);
+    s.age_live(15001);
+    let key = focus(&s);
+    s.activate(
+        FocusKey {
+            entry: entry(Page::Applications),
+            elem: key,
+        },
+        false,
+    );
+    assert!(s.take_requests().is_empty());
+    update.catalogue = crate::live::Reading::Failed("No data".into());
+    s.apply_live(&update, 15002);
+    assert!(s.focused_item().is_some());
+    s.activate(
+        FocusKey {
+            entry: entry(Page::Applications),
+            elem: key,
+        },
+        false,
+    );
+    assert!(s.take_requests().is_empty());
+}
+
+#[test]
+fn changed_picture_context_and_failed_audio_never_reuse_fresh_control_values(){
+    let _serial=plx_base::testlock::serial();let mut data=fixture();let ctx=data.context.clone();
+    data.settings.insert("sound".into(),vec![Setting{id:"volume".into(),focus_key:20,label:"Volume".into(),value:"10".into(),context:ctx,protected:false,available:true}]);
+    let mut s=Shell::new(data,Preferences::default());s.open(Page::Sound);s.apply_live(&live_update(100),100);
+    assert_eq!(s.surface.table.activate(0),None);assert_eq!(s.surface.table.table.sections[0].rows[0].value.as_deref(),Some("Unavailable"));
+    let mut update=live_update(110);let crate::live::Reading::Value(ref mut picture)=update.picture else{unreachable!()};picture.context.dynamic_range="hdr".into();
+    picture.settings=vec![Setting{id:"brightness".into(),focus_key:1,label:"Brightness".into(),value:"70".into(),context:picture.context.clone(),protected:false,available:true}];
+    s.open(Page::Picture);s.apply_live(&update,110);assert_eq!(s.snapshot.context.dynamic_range,"hdr");assert_eq!(s.surface.table.table.sections[0].rows[0].value.as_deref(),Some("70"));
+    s.age_live(15111);assert_eq!(s.surface.table.activate(0),None);assert_eq!(s.surface.table.table.sections[0].rows[0].value.as_deref(),Some("Unavailable"));
+}

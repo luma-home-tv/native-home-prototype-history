@@ -22,6 +22,7 @@ use plx_ui::widgets::{Art, LegacyMeasure};
 use plx_ui::{theme, Painter, Rect};
 use serde::{Deserialize, Serialize};
 
+use crate::live::{self, Freshness, Update};
 use crate::model::{controls_form, Action, Application, Catalogue, Context, Page, Setting};
 
 const RAIL_BASE: u32 = 10_000;
@@ -50,7 +51,7 @@ const TABS: [(Page, &str); 4] = [
     (Page::Controls, "Controls"),
 ];
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Input {
     pub id: String,
     pub label: String,
@@ -58,7 +59,7 @@ pub struct Input {
     pub signal: bool,
     pub active: bool,
 }
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Snapshot {
     pub captured_at: String,
     pub applications: Vec<Application>,
@@ -188,6 +189,15 @@ struct Surface {
     rail: FormTable<String, Action, Page>,
     table: FormTable<String, Action, Page>,
     table_mode: bool,
+}
+fn input_key(id: &str) -> Option<u32> {
+    match id {
+        "HDMI_1" => Some(500),
+        "HDMI_2" => Some(501),
+        "HDMI_3" => Some(502),
+        "HDMI_4" => Some(503),
+        _ => None,
+    }
 }
 fn entry(page: Page) -> EntryId {
     EntryId(page as u32 + 1)
@@ -363,6 +373,9 @@ pub struct Shell {
     pending: Vec<Action>,
     exit: bool,
     preferences_changed: bool,
+    live_state: Option<Freshness>,
+    live_now: u32,
+    live_updates: u32,
 }
 impl Shell {
     pub fn new(snapshot: Snapshot, mut prefs: Preferences) -> Self {
@@ -406,6 +419,9 @@ impl Shell {
             pending: Vec::new(),
             exit: false,
             preferences_changed: seeded,
+            live_state: None,
+            live_now: 0,
+            live_updates: 0,
         };
         shell.rebuild(Page::Home);
         shell
@@ -496,10 +512,10 @@ impl Shell {
                     } else if input.plugged {
                         "Connected • no signal"
                     } else {
-                        "No signal"
+                        "Not connected"
                     };
                     self.surface.cards.items.push(Card {
-                        key: 500 + i as u32,
+                        key: input_key(&input.id).unwrap_or(500 + i as u32),
                         id: input.id.clone(),
                         title: cstr(&input.label),
                         caption: cstr(caption),
@@ -560,7 +576,7 @@ impl Shell {
             focus: self.input.engine.read(owner),
             owner,
         };
-        self.input.engine.enter(
+        let outcome = self.input.engine.enter(
             owner,
             &self.surface,
             FocusTarget::ContainerGroup(GroupId(if self.surface.keys().is_empty() {
@@ -571,6 +587,119 @@ impl Shell {
             old,
             &cx,
         );
+        self.moved(outcome);
+    }
+    pub fn apply_live(&mut self, update: &Update, now: u32) {
+        let before = self.snapshot.clone();
+        let mut fresh = self.live_state.take().unwrap_or_default();
+        live::merge(&mut self.snapshot, update, &mut fresh);
+        self.live_state = Some(fresh);
+        self.live_now = now;
+        self.live_updates += 1;
+        self.catalogue
+            .refresh(&self.snapshot.applications, &self.snapshot.launch_ids);
+        self.refresh_shown_data(&before);
+    }
+    pub fn age_live(&mut self, now: u32) {
+        self.live_now = now;
+        if let Some(fresh) = &self.live_state {
+            let due = [("picture", fresh.picture), ("sound", fresh.sound)]
+                .into_iter()
+                .any(|(section, stamp)| {
+                    !Freshness::current(stamp, now)
+                        && self
+                            .snapshot
+                            .settings
+                            .get(section)
+                            .is_some_and(|rows| rows.iter().any(|r| r.available))
+                });
+            if due {
+                let before = self.snapshot.clone();
+                live::expire(&mut self.snapshot, fresh, now);
+                self.refresh_shown_data(&before);
+            }
+        }
+    }
+    fn refresh_shown_data(&mut self, before: &Snapshot) {
+        let page = self.surface.page;
+        let changed = match page {
+            Page::Home | Page::Applications => {
+                before.applications != self.snapshot.applications
+                    || before.launch_ids != self.snapshot.launch_ids
+            }
+            Page::Inputs => before.inputs != self.snapshot.inputs,
+            Page::Controls => false,
+            _ => {
+                before.context != self.snapshot.context || before.settings != self.snapshot.settings
+            }
+        };
+        if !changed {
+            return;
+        }
+        // Keep the shared grid's motion/viewport on a data refresh; the engine owns the key.
+        let grid = std::mem::replace(
+            &mut self.surface.grid,
+            Grid::new(
+                entry(page),
+                GridSpec::new(282.0, 260.0).columns(4, CARD_STYLE, 566.0),
+            ),
+        );
+        self.rebuild(page);
+        self.surface.grid = grid;
+        let owner = InputOwner::Entry(entry(page));
+        if let Some(to) = self.input.engine.current(owner) {
+            self.moved(plx_ui::focus::Outcome::Moved {
+                from: Some(to),
+                to,
+                by: By::Restore,
+            });
+        }
+    }
+    fn request_is_current(&self) -> bool {
+        let Some(fresh) = &self.live_state else {
+            return true;
+        };
+        Freshness::current(
+            if self.surface.page == Page::Inputs {
+                fresh.inputs
+            } else {
+                fresh.catalogue
+            },
+            self.live_now,
+        )
+    }
+    pub fn live_updates(&self) -> u32 {
+        self.live_updates
+    }
+    fn reading_label(&self) -> String {
+        let Some(fresh) = &self.live_state else {
+            return format!("TV state captured {}", self.snapshot.captured_at);
+        };
+        let stamp = match self.surface.page {
+            Page::Home | Page::Applications => fresh.catalogue,
+            Page::Inputs => fresh.inputs,
+            Page::Sound => fresh.sound,
+            Page::Picture => fresh.picture,
+            _ => fresh.picture,
+        };
+        if !Freshness::current(stamp, self.live_now) {
+            return "Reading unavailable • last state kept".into();
+        }
+        let label = if fresh.simulated {
+            "Simulated update"
+        } else {
+            "Live TV state"
+        };
+        if self.surface.page == Page::Picture {
+            format!(
+                "{} / {} / {} • {label}",
+                self.snapshot.context.input,
+                self.snapshot.context.dynamic_range.to_uppercase(),
+                self.snapshot.context.picture_mode
+            )
+        } else {
+            label.into()
+        }
     }
     pub fn load_icons(&mut self, assets: &std::path::Path) {
         for (id, _, _) in self.textures.values() {
@@ -760,6 +889,10 @@ impl Shell {
             self.preferences_changed = true;
             self.rebuild(self.surface.page);
         } else {
+            if !self.request_is_current() {
+                self.status = cstr("Reading unavailable • refresh before opening this item");
+                return;
+            }
             self.status =
                 cstr("Application/source request — connection is not enabled in this pilot");
             self.pending.push(if self.surface.page == Page::Inputs {
@@ -835,9 +968,9 @@ impl Shell {
         .bold()
         .draw(p, Rect::new(96.0, 60.0, 1320.0, 76.0));
         let subtitle = cstr(&format!(
-            "{}  •  TV state captured {}",
+            "{}  •  {}",
             self.surface.page.title().unwrap_or("Home"),
-            self.snapshot.captured_at
+            self.reading_label()
         ));
         Label::new(
             subtitle.as_ptr(),

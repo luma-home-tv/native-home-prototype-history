@@ -18,7 +18,7 @@ stage = output / 'preview-package/usr/palm/applications' / app_id
 stage.mkdir(parents=True, exist_ok=False)
 main = binary.name
 if main not in ('control-preview', 'home-preview'): raise ValueError('Unexpected preview binary')
-version = '0.3.0' if main == 'home-preview' else '0.1.0'
+version = '0.4.0' if main == 'home-preview' else '0.1.0'
 shutil.copy2(binary, stage / main)
 (stage / main).chmod(0o755)
 for name in ('appfont.ttf', 'appfont-bold.ttf', 'OFL.txt'):

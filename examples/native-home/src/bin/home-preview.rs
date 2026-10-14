@@ -1,4 +1,4 @@
-//! Bounded interactive native shell. Snapshot-only: requests are recorded, never executed.
+//! Bounded native shell with ordinary-app live reads. Requests remain unexecuted.
 use native_home::{
     model::Page,
     preferences::Persistence,
@@ -28,6 +28,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
     let capture_only = !device && !args.iter().any(|a| a == "--interactive");
     let window = Window::new(!capture_only)?;
+    let live_origin = Instant::now();
     {
         use std::os::unix::fs::DirBuilderExt;
         let mut builder = std::fs::DirBuilder::new();
@@ -47,6 +48,30 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         return Err("Snapshot too large".into());
     }
     let snapshot: Snapshot = serde_json::from_slice(&bytes)?;
+    #[allow(unused_mut)]
+    let mut live_worker = None;
+    #[cfg(target_arch = "arm")]
+    if device {
+        live_worker = Some(native_home::live::Worker::native(
+            plx_base::paths::app_id().to_owned(),
+            live_origin,
+        )?);
+    }
+    let fixture_path = assets.join("live-fixture.json");
+    if !device && fixture_path.exists() {
+        let bytes = std::fs::read(fixture_path)?;
+        if bytes.len() > 2 * 1024 * 1024 {
+            return Err("Live fixture too large".into());
+        }
+        let values: Vec<serde_json::Value> = serde_json::from_slice(&bytes)?;
+        live_worker = Some(native_home::live::Worker::fixture(
+            values,
+            "com.ash.nativehome.preview".into(),
+            live_origin,
+            Duration::from_millis(500),
+        )?);
+    }
+    let mut live_history = Vec::new();
     let state_path = if device {
         PathBuf::from("/media/developer/.com.ash.nativehome.preview-state")
     } else {
@@ -78,6 +103,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         shell.open(page);
         for _ in 0..45 {
             now += 17;
+            poll_live(&live_worker, &mut shell, live_origin, &mut live_history);
             shell.tick(now, 1.0 / 60.0);
             shell.draw();
             window.swap();
@@ -171,6 +197,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let dt = (current - last).as_secs_f32().clamp(0.001, 0.05);
             last = current;
             now += (dt * 1000.0) as u32;
+            poll_live(&live_worker, &mut shell, live_origin, &mut live_history);
             shell.tick(now, dt);
             while let Some(e) = poll() {
                 events += 1;
@@ -251,6 +278,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             reason = "back_from_home";
         }
     }
+    if let Some(worker) = live_worker {
+        worker.finish();
+    }
     if let Some(writer) = persistence {
         accept_replies(
             writer.finish(),
@@ -279,7 +309,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         || (loaded_preferences.as_ref() == Some(shell.preferences()) && storage_error.is_none());
     let report = serde_json::json!({"device":device,"app_id":plx_base::paths::app_id(),"uid":unsafe{libc::geteuid()},"renderer":window.renderer,
         "drawable":[1920,1080],"events":events,"event_log":event_log,"exit_reason":reason,"requests_not_executed":requests,
-        "setting_writes":false,"application_launches":false,"data":"captured TV snapshot","preferences":shell.preferences(),
+        "setting_writes":false,"application_launches":false,"data":if shell.live_updates()>0{if device{"ordinary app live readings"}else{"simulated live readings"}}else{"captured TV snapshot"},"live_updates":shell.live_updates(),"live_history":live_history,"preferences":shell.preferences(),
         "preferences_at_boot":preferences_at_boot,"preferences_loaded":loaded_preferences.is_some(),"preferences_readback_confirmed":persistent_readback,
         "storage_error":storage_error,"native_read_probe_registered":native_api_probe.as_ref().and_then(|v|v.get("registered")),"storage_class":if device{"developer media"}else{"host instance"},"hold_probe_identity":probe_identity,"hold_probe_changed":probe_changed,
         "performance_validated":false,"scripted_navigation":{"focus":navigation,"page_after_ok":navigation_page,"passed":navigation_page=="Inputs","requests_not_executed":scripted_requests},"elapsed_seconds":start.elapsed().as_secs_f64()});
@@ -320,4 +350,26 @@ fn accept_replies(
             Err(failure) => *error = Some(failure),
         }
     }
+}
+
+fn poll_live(
+    worker: &Option<native_home::live::Worker>,
+    shell: &mut Shell,
+    origin: Instant,
+    history: &mut Vec<serde_json::Value>,
+) {
+    if let Some(update) = worker.as_ref().and_then(|worker| worker.poll()) {
+        let status = |ok: bool| if ok { "read" } else { "unavailable" };
+        if history.len() < 32 {
+            history.push(
+                serde_json::json!({"observed_ms":update.observed_ms,"simulated":update.simulated,
+            "catalogue":status(matches!(update.catalogue,native_home::live::Reading::Value(_))),
+            "inputs":status(matches!(update.inputs,native_home::live::Reading::Value(_))),
+            "picture":status(matches!(update.picture,native_home::live::Reading::Value(_))),
+            "sound":status(matches!(update.sound,native_home::live::Reading::Value(_)))}),
+            );
+        }
+        shell.apply_live(&update, origin.elapsed().as_millis() as u32);
+    }
+    shell.age_live(origin.elapsed().as_millis() as u32);
 }

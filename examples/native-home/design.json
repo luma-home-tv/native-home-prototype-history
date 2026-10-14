@@ -4,7 +4,12 @@
     "index": "docs/concepts/README.md",
     "overview": "docs/concepts/overview.png",
     "status": "Design mockups with synthetic data; not native TV captures or implemented capability",
-    "screens": ["home", "apps", "inputs", "controls"]
+    "screens": [
+      "home",
+      "apps",
+      "inputs",
+      "controls"
+    ]
   },
   "viewport": {
     "logical_width": 1920,
@@ -85,7 +90,14 @@
     "basis": "PlxNative shared tokens and components",
     "background": "OLED-friendly dark palette",
     "animations": "Short transform/opacity transitions with bounded render caches",
-    "idle": "Render only on meaningful changes; hidden app suspends activity"
+    "idle": "Render only on meaningful changes; hidden app suspends activity",
+    "reference": "Apple TV / tvOS feel, following the native PlxNative interpretation",
+    "principles": [
+      "Large, readable cards and restrained chrome",
+      "Smooth spatial focus movement with a clear foreground selection",
+      "Simple Back hierarchy and limited choices on each surface",
+      "Native components and animations; no WebView"
+    ]
   },
   "capability_states": [
     "Native view",
