@@ -78,15 +78,18 @@ This is a development target, not a compatibility claim for every webOS TV.
 | App launching | Restricted normal-app adapter verified with a separately installed native test target and independent foreground readback |
 | HDMI / LG Settings | Probes remain incomplete; normal execution stays disabled |
 | Controls | Current-context picture readings; unsupported/protected rows remain read-only or LG-managed; no setting-write action |
-| OLED palette | True-black canvas is implemented; the earlier captured layout milestone used the original graphite canvas |
-| Remaining UI | Clock/status header, search/filter/order, broader controls and audio coverage |
+| OLED palette | True-black canvas captured on G2; Home frame is 80.2% exact RGB zero; graphite tiles retained |
+| Remaining UI | Clock/status header, search/filter/order, broader controls/audio; native rail repaint review |
 | Remaining device proof | Physical remote/pointer/wheel, reboot persistence, frame pacing, latency, memory and idle behaviour |
 
 The [milestone records](examples/native-home/docs/implementation-plan.md#verification-and-delivery)
 identify exact code revisions and proof boundaries. The current client has passed
 35 behaviour checks, Clippy, an ARM release build and native capture/removal
-checks. The broad shared-library gate also passed before the latest palette
-addition; new checks and palette captures must be recorded against the new tree.
+checks. The shared-library gate, shipping feature check and G2 palette capture also
+passed on `2a53bfd`; the [OLED/branding milestone](examples/native-home/docs/oled-branding-milestone.json)
+records exact framebuffer measurements and clean removal. Some native page
+captures omit the navigation rail or clip glyph edges. Rendering review remains
+open; host/model checks do not prove every device pixel.
 
 The client remains a separate, bounded development preview. It does not replace
 LG Home, intercept Home, install boot hooks, modify firmware/system libraries or

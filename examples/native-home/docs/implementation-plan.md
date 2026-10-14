@@ -31,13 +31,19 @@ and palette; a black background is not treated as proof of burn-in prevention.
 
 | Area | Intended behaviour | Current evidence |
 | --- | --- | --- |
-| Home | Clock/status header, immediate access to favourites and HDMI inputs, control-centre entry and LG Home return | Combined favourites and HDMI shelves implemented with shared native components; host and G2 native captures inspected with live readings; clock remains to build |
+| Home | Clock/status header, immediate access to favourites and HDMI inputs, control-centre entry and LG Home return | Combined favourites and HDMI shelves implemented with shared native components; host and G2 native captures inspected with live readings; OLED black canvas captured; clock remains to build |
 | Apps | Complete actionable app drawer, search/filter, pinning and dashboard-only ordering | Registered visible apps joined to launch points; stubs/hidden/invalid targets excluded; live updates and identity/focus checks pass; normal app launch enabled and isolated native target proof passed; search/order remain |
 | Favourites | Pin/unpin with held OK, save reliably, retain selection across changes | ARM pin/save/readback/relaunch/unpin verified; bounded background writer; reboot survival remains untested |
 | Inputs | Four HDMI cards with distinct plug, signal and active states; select through LG's normal source path | Native cards refreshed through normal-app reads; disconnected HDMI 4 launch reached its foreground but EIM activation readback did not confirm it; switching stays disabled |
 | Controls | Native category/detail pages, correct context, validated choices/ranges and access to the rest through LG Settings | Native category/value pages rendered; four picture values/context refreshed live; write capability remains unavailable; Settings adapter observed its overlay after a longer load window, but independent observation remains incomplete |
 | Navigation | Remote focus, safe tap/hold, Back hierarchy, pointer and wheel | Shared-machine tests and scripted ARM navigation pass; injected Back reaches SDL and exits; physical remote/pointer/wheel proof remains |
 | Performance | Smooth transitions, bounded memory and render only when needed | Native Mali-G52 rendering proved; this client has no validated FPS, latency, memory or idle result yet |
+
+The latest [OLED/branding milestone](oled-branding-milestone.json) records
+true-black framebuffer evidence and clean removal on `2a53bfd`. Native captures
+also expose a rendering issue: the rail is absent on some child pages and some
+glyph edges clip. Its cause is not established; resolve and verify the device
+paint path before calling navigation/presentation finished.
 
 ## Next implementation stages
 
@@ -90,6 +96,7 @@ The current evidence is in the [native shell milestone](shell-milestone.json)
 and [favourites/read-capability milestone](preferences-milestone.json), and
 [live-reading milestone](live-milestone.json) and
 [application-launch milestone](launch-milestone.json), plus the
-[combined Home layout milestone](home-layout-milestone.json). Completion
+[combined Home layout milestone](home-layout-milestone.json) and
+[OLED/branding milestone](oled-branding-milestone.json). Completion
 requires the intended functional interface and device evidence above, not only
 concept renders, a successful build or component tests.

@@ -183,8 +183,8 @@ def controls():
 
 
 def overview():
-    parts=[f'<svg xmlns="http://www.w3.org/2000/svg" width="2560" height="1660" viewBox="0 0 2560 1660"><title>Native Home four-screen concept overview</title><rect width="2560" height="1660" fill="#141416"/>']
-    parts.append(f'<text x="64" y="71" font-family="Inter,sans-serif" font-size="40" font-weight="600" fill="{INK}">Native Home · Interface direction</text>')
+    parts=[f'<svg xmlns="http://www.w3.org/2000/svg" width="2560" height="1660" viewBox="0 0 2560 1660"><title>Luma Home four-screen concept overview</title><rect width="2560" height="1660" fill="#141416"/>']
+    parts.append(f'<text x="64" y="71" font-family="Inter,sans-serif" font-size="40" font-weight="600" fill="{INK}">Luma Home · Interface direction</text>')
     parts.append(f'<text x="2496" y="68" font-family="Inter,sans-serif" font-size="24" fill="{MUTED}" text-anchor="end">Design mockups · Synthetic data</text>')
     for i,name in enumerate(('home','apps','inputs','controls')):
         x=64+(i%2)*1248;y=150+(i//2)*752

@@ -1,0 +1,229 @@
+{
+  "code_revision": "2a53bfd",
+  "client_tests": {
+    "passed": 35,
+    "failed": 0
+  },
+  "client_clippy": "passed, warnings denied",
+  "shared_make_check": "passed",
+  "shipping_no_default_features_check": "passed",
+  "arm_release_link": "passed",
+  "shared_source_tree": "71294c95ac6115c7dde01bcaa0e9e3d51678bffe",
+  "native": {
+    "platform": "OLED55G26LA / webOS24 9.2.2-61 / firmware 23.25.55",
+    "renderer": "Mali-G52",
+    "drawable": [
+      1920,
+      1080
+    ],
+    "uid": 5724,
+    "binary_sha256": "701831c98ee86d3a1e3f2205cfb9fe248c70ab2aa8b0ad713d1445b94ec181ea",
+    "live_read_cycles": 4,
+    "back": "injected SDL Back exited from Home",
+    "settings_writes": false,
+    "app_or_source_launches_during_capture": false
+  },
+  "canvas": {
+    "role": "Opt-in SURFACE_OLED; shared SURFACE_APP default unchanged",
+    "rgb": [
+      0,
+      0,
+      0
+    ],
+    "framebuffer_metrics": {
+      "home": {
+        "corner_rgb": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "exact_black_fraction": 0.802
+      },
+      "applications": {
+        "corner_rgb": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "exact_black_fraction": 0.8183
+      },
+      "inputs": {
+        "corner_rgb": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "exact_black_fraction": 0.9025
+      },
+      "controls": {
+        "corner_rgb": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "exact_black_fraction": 0.9506
+      },
+      "picture": {
+        "corner_rgb": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "exact_black_fraction": 0.9476
+      },
+      "sound": {
+        "corner_rgb": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "exact_black_fraction": 0.9278
+      }
+    },
+    "limit": "Exact-black framebuffer area for these captures, not physical panel power or burn-in protection evidence"
+  },
+  "branding": {
+    "method": "Built-in imagegen reference, manually recreated vector geometry and outlined OFL Inter wordmarks",
+    "vector_masters": 9,
+    "embedded_raster_in_vectors": false,
+    "export_sizes": [
+      32,
+      64,
+      128,
+      160,
+      512
+    ],
+    "palette": [
+      "#000000",
+      "#24262B",
+      "#F5F6F7",
+      "#A5F0D4"
+    ]
+  },
+  "cleanup": {
+    "paths_and_mounts_absent": true,
+    "persistent_state_absent": true,
+    "catalogue_absent": true,
+    "launchpoint_absent": true,
+    "core_hashes_unchanged": true,
+    "picture_values_unchanged": true,
+    "audio_values_unchanged": true,
+    "home_foreground": true,
+    "original_foreground_verified": true,
+    "reboot_required": false
+  },
+  "open_render_review": [
+    "Rail is absent in captured Inputs/Controls/Picture/Sound frames although present on Home/Apps; some glyph edges are clipped. Cause not established. Host captures and focus-model checks do not prove those device pixels."
+  ],
+  "remaining": [
+    "physical remote/pointer/wheel",
+    "clock and app search/filter/order",
+    "broader controls/audio and verified Settings/source routes",
+    "frame pacing/latency/memory/idle measurements",
+    "reboot persistence",
+    "native rail repaint/capture review"
+  ],
+  "privacy": "Detailed device receipts, actual inventory/icons and native household captures remain outside tracked source."
+}

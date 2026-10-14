@@ -1,4 +1,4 @@
-# Native Home interface concepts
+# Luma Home interface concepts
 
 These are **design mockups, not TV captures or implemented capability**. App
 names, icons, clock, source states, audio status and setting values are synthetic.
@@ -17,7 +17,7 @@ limited. See the [implementation plan](../implementation-plan.md) and
 
 ## Design decisions
 
-The concepts continue PlxNative's graphite surfaces, cool off-white ink and
+The concepts use an OLED-black canvas with PlxNative's graphite surfaces, cool off-white ink and
 rounded shared cards/forms. The 1920 × 1080 logical canvas uses 96 px outer
 margins, a persistent four-item rail and Inter's existing 24/26/28/32/40/48 px
 type scale. Ordinary text never drops below the 24 px couch-legibility floor.
