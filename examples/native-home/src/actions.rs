@@ -41,6 +41,7 @@ pub enum Op {
     LaunchPoints,
     Inputs,
     Foreground,
+    Windows,
     Launch,
 }
 pub trait Platform {
@@ -182,7 +183,23 @@ pub fn execute<P: Platform>(
         receipt.admitted = true;
         for _ in 0..8 {
             let current = get(platform, Op::Foreground)?;
-            if current.get("appId").and_then(Value::as_str) == receipt.target.as_deref() {
+            let overlay = if matches!(request, Request::LgSettings {}) {
+                let windows = get(platform, Op::Windows)?;
+                windows
+                    .get("windows")
+                    .and_then(Value::as_array)
+                    .is_some_and(|rows| {
+                        rows.iter().any(|r| {
+                            r.get("appId").and_then(Value::as_str) == receipt.target.as_deref()
+                                && r.get("windowType").and_then(Value::as_str)
+                                    == Some("_WEBOS_WINDOW_TYPE_OVERLAY")
+                        })
+                    })
+            } else {
+                false
+            };
+            if overlay || current.get("appId").and_then(Value::as_str) == receipt.target.as_deref()
+            {
                 if let Request::Input { id } = &request {
                     let inputs = get(platform, Op::Inputs)?;
                     let active =
@@ -226,6 +243,7 @@ impl Platform for NativePlatform {
             Op::LaunchPoints => "luna://com.webos.applicationManager/listLaunchPoints",
             Op::Inputs => "luna://com.webos.service.eim/getAllInputStatus",
             Op::Foreground => "luna://com.webos.applicationManager/getForegroundAppInfo",
+            Op::Windows => "luna://com.webos.surfacemanager/getForegroundWindowInfo",
             Op::Launch => "luna://com.webos.applicationManager/launch",
         };
         let raw = self
@@ -318,6 +336,7 @@ mod tests {
         inputs: Value,
         launches: Vec<Value>,
         accepted: bool,
+        window_after: Option<String>,
     }
     impl Fake {
         fn new() -> Self {
@@ -329,6 +348,7 @@ mod tests {
                 inputs: json!({"returnValue":true,"devices":[{"id":"HDMI_1","appId":"com.webos.app.hdmi1","activate":true}]}),
                 launches: Vec::new(),
                 accepted: true,
+                window_after: None,
             }
         }
     }
@@ -338,6 +358,9 @@ mod tests {
                 Op::Apps => self.rows.clone(),
                 Op::LaunchPoints => self.points.clone(),
                 Op::Inputs => self.inputs.clone(),
+                Op::Windows => {
+                    json!({"returnValue":true,"windows":if self.launches.is_empty(){json!([])}else{json!([{"appId":self.window_after.as_ref().unwrap_or(&self.after),"windowType":"_WEBOS_WINDOW_TYPE_OVERLAY"}])}})
+                }
                 Op::Foreground => {
                     json!({"returnValue":true,"appId":if self.launches.is_empty(){&self.foreground}else{&self.after}})
                 }
@@ -493,6 +516,35 @@ mod tests {
             .admitted
         );
         assert!(p.launches.is_empty());
+    }
+    #[test]
+    fn settings_overlay_readback_is_distinct_from_the_underlying_foreground_card() {
+        let mut p = Fake::new();
+        p.after = "com.example.home".into();
+        p.window_after = Some("com.palm.app.settings".into());
+        let r = execute(
+            &mut p,
+            "com.example.home",
+            Request::LgSettings {},
+            Capabilities {
+                settings: true,
+                ..Default::default()
+            },
+        );
+        assert!(r.admitted && r.verified);
+        let mut p = Fake::new();
+        p.after = "com.example.home".into();
+        p.window_after = Some("com.example.other".into());
+        let r = execute(
+            &mut p,
+            "com.example.home",
+            Request::LgSettings {},
+            Capabilities {
+                settings: true,
+                ..Default::default()
+            },
+        );
+        assert!(r.admitted && !r.verified);
     }
     #[test]
     fn wire_requests_cannot_add_uri_command_or_launch_parameters() {
