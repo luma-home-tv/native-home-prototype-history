@@ -176,7 +176,12 @@ pub fn execute<P: Platform>(
         if current.get("appId").and_then(Value::as_str) != Some(own_id) {
             return Err("Foreground changed before launch".into());
         }
-        let reply = platform.call(Op::Launch, json!({"id":id}))?;
+        let payload = if matches!(request, Request::LgSettings {}) {
+            json!({"id":id,"params":{"target":"picture"}})
+        } else {
+            json!({"id":id})
+        };
+        let reply = platform.call(Op::Launch, payload)?;
         if !accepted(&reply) {
             return Err("Launch refused".into());
         }
@@ -532,6 +537,10 @@ mod tests {
             },
         );
         assert!(r.admitted && r.verified);
+        assert_eq!(
+            p.launches,
+            vec![json!({"id":"com.palm.app.settings","params":{"target":"picture"}})]
+        );
         let mut p = Fake::new();
         p.after = "com.example.home".into();
         p.window_after = Some("com.example.other".into());
