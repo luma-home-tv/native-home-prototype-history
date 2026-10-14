@@ -214,16 +214,18 @@
     "original_foreground_verified": true,
     "reboot_required": false
   },
-  "open_render_review": [
-    "Rail is absent in captured Inputs/Controls/Picture/Sound frames although present on Home/Apps; some glyph edges are clipped. Cause not established. Host captures and focus-model checks do not prove those device pixels."
-  ],
+  "open_render_review": [],
   "remaining": [
     "physical remote/pointer/wheel",
     "clock and app search/filter/order",
     "broader controls/audio and verified Settings/source routes",
     "frame pacing/latency/memory/idle measurements",
-    "reboot persistence",
-    "native rail repaint/capture review"
+    "reboot persistence"
   ],
-  "privacy": "Detailed device receipts, actual inventory/icons and native household captures remain outside tracked source."
+  "privacy": "Detailed device receipts, actual inventory/icons and native household captures remain outside tracked source.",
+  "render_review_correction": {
+    "previous_claim": "Preview review incorrectly reported missing rails and clipped glyphs.",
+    "verification": "Standalone raw PPM comparison found all six complete frames byte-identical across the dependency refactor, with the navigation rail present.",
+    "record": "https://github.com/luma-home-tv/native-home/blob/main/docs/standalone-device-milestone.json"
+  }
 }

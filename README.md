@@ -1,5 +1,10 @@
 <p align="center"><img src="assets/luma-home/banner.svg" alt="Luma Home — Native TV dashboard" width="800"></p>
 
+> Historical combined prototype. Active development has moved to the independent
+> [luma-home-tv/native-home](https://github.com/luma-home-tv/native-home) repository,
+> which contains Luma's application and an explicitly attributed, pinned external
+> PlxNative framework dependency. This fork preserves the earlier work and upstream history.
+
 Luma Home is an experimental native home dashboard for rooted LG webOS TVs.
 It brings favourites, an app drawer, HDMI status and a control centre into one
 remote-friendly interface, rendered with Rust, SDL2 and OpenGL ES.
@@ -79,7 +84,7 @@ This is a development target, not a compatibility claim for every webOS TV.
 | HDMI / LG Settings | Probes remain incomplete; normal execution stays disabled |
 | Controls | Current-context picture readings; unsupported/protected rows remain read-only or LG-managed; no setting-write action |
 | OLED palette | True-black canvas captured on G2; Home frame is 80.2% exact RGB zero; graphite tiles retained |
-| Remaining UI | Clock/status header, search/filter/order, broader controls/audio; native rail repaint review |
+| Remaining UI at this historical revision | Clock/status header, search/filter/order, broader controls/audio |
 | Remaining device proof | Physical remote/pointer/wheel, reboot persistence, frame pacing, latency, memory and idle behaviour |
 
 The [milestone records](examples/native-home/docs/implementation-plan.md#verification-and-delivery)
@@ -87,9 +92,11 @@ identify exact code revisions and proof boundaries. The current client has passe
 35 behaviour checks, Clippy, an ARM release build and native capture/removal
 checks. The shared-library gate, shipping feature check and G2 palette capture also
 passed on `2a53bfd`; the [OLED/branding milestone](examples/native-home/docs/oled-branding-milestone.json)
-records exact framebuffer measurements and clean removal. Some native page
-captures omit the navigation rail or clip glyph edges. Rendering review remains
-open; host/model checks do not prove every device pixel.
+records exact framebuffer measurements and clean removal. An earlier visual
+preview review incorrectly reported missing rails/clipped glyphs. Subsequent raw
+framebuffer comparison in the standalone project found the complete rail and all
+six frames byte-identical across the refactor. See its
+[corrected device record](https://github.com/luma-home-tv/native-home/blob/main/docs/standalone-device-milestone.json).
 
 The client remains a separate, bounded development preview. It does not replace
 LG Home, intercept Home, install boot hooks, modify firmware/system libraries or
