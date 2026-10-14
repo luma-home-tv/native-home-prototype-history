@@ -1,0 +1,19 @@
+{
+  "kind": "native G2 framebuffer capture; synthetic design values",
+  "model": "OLED55G26LA",
+  "webos": "9.2.2-61",
+  "firmware": "23.25.55",
+  "app_id": "com.ash.nativehome.preview",
+  "runtime": "unprivileged native Wayland/Mali-G52",
+  "drawable": [
+    1920,
+    1080
+  ],
+  "controls_executed": false,
+  "setting_writes": false,
+  "interactive_navigation_verified": false,
+  "performance_measured": false,
+  "core_files_unchanged": true,
+  "clean_removal_verified": true,
+  "reboot_needed": false
+}
