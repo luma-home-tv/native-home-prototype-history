@@ -43,7 +43,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         if ctx.is_null() { return Err(CStr::from_ptr(SDL_GetError()).to_string_lossy().into_owned().into()); }
         let (mut w, mut h) = (0, 0); SDL_GL_GetDrawableSize(window, &mut w, &mut h);
         if (w, h) != (1920, 1080) { return Err(format!("Unexpected drawable {w}x{h}").into()); }
-        println!("capture device={device} app_id={} uid={} renderer={}", plx_base::paths::app_id(), libc::geteuid(), CStr::from_ptr(glGetString(0x1f01).cast()).to_string_lossy());
+        let renderer_ptr = glGetString(0x1f01);
+        if renderer_ptr.is_null() { return Err("GL renderer unavailable".into()); }
+        let renderer = CStr::from_ptr(renderer_ptr.cast()).to_string_lossy();
+        println!("capture device={device} app_id={} uid={} renderer={renderer}", plx_base::paths::app_id(), libc::geteuid());
+        if device {
+            let info = serde_json::json!({"device":true,"app_id":plx_base::paths::app_id(),
+                "uid":libc::geteuid(),"renderer":renderer,"drawable":[w,h],"setting_writes":false,
+                "values":"synthetic design fixture"});
+            let mut file = std::fs::OpenOptions::new().write(true).create_new(true)
+                .custom_flags(libc::O_NOFOLLOW | libc::O_CLOEXEC).mode(0o640)
+                .open(plx_base::paths::in_runtime_dir("capture-info.json"))?;
+            serde_json::to_writer(&mut file, &info)?;
+        }
         glViewport(0, 0, w, h);
         plx_gfx::gfx::init_gl(); plx_gfx::gfx::init_image(); plx_gfx::text::init_text();
         let mut page = native_home::preview::ControlPreview::new();
