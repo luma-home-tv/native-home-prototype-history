@@ -18,7 +18,7 @@ app_id = 'com.ash.nativehome.targetproof' if main == 'launch-target' else 'com.a
 stage = output / 'preview-package/usr/palm/applications' / app_id
 stage.mkdir(parents=True, exist_ok=False)
 if main not in ('control-preview', 'home-preview', 'launch-target'): raise ValueError('Unexpected preview binary')
-version = '0.5.0' if main == 'home-preview' else '0.1.0'
+version = '0.6.0' if main == 'home-preview' else '0.1.0'
 shutil.copy2(binary, stage / main)
 (stage / main).chmod(0o755)
 for name in ('appfont.ttf', 'appfont-bold.ttf', 'OFL.txt'):
@@ -39,6 +39,11 @@ if main == 'home-preview':
     shutil.copy2(assets / 'snapshot.json', stage / 'snapshot.json')
     if os.environ.get('NATIVE_HOME_LAUNCH_PROOF') == '1':
         (stage / 'launch-proof.json').write_text(json.dumps({'kind':'Application','id':'com.ash.nativehome.targetproof'})+'\n')
+    route = os.environ.get('NATIVE_HOME_ROUTE_PROOF')
+    if route:
+        if route not in ('settings', 'hdmi4'): raise ValueError('Unknown proof route')
+        proof = {'kind':'LgSettings'} if route == 'settings' else {'kind':'Input','id':'HDMI_4'}
+        (stage / 'launch-proof.json').write_text(json.dumps(proof)+'\n')
     if os.environ.get('NATIVE_HOME_PREFERENCES_PROBE') == '1':
         shutil.copy2(assets / 'preferences-hold-probe.json', stage / 'preferences-hold-probe.json')
     if os.environ.get('NATIVE_HOME_NATIVE_READ_PROBE') == '1':
@@ -81,6 +86,7 @@ receipt = {'app_id': app_id, 'ipk': str(ipk), 'sha256': hashlib.sha256(ipk.read_
            'preference_hold_probe': os.environ.get('NATIVE_HOME_PREFERENCES_PROBE') == '1',
            'native_read_probe': os.environ.get('NATIVE_HOME_NATIVE_READ_PROBE') == '1',
            'launch_proof': os.environ.get('NATIVE_HOME_LAUNCH_PROOF') == '1',
+           'route_proof': os.environ.get('NATIVE_HOME_ROUTE_PROOF'),
            'permissions': [], 'services': [], 'boot_hooks': [], 'system_files': []}
 (output / 'preview-package-receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
 print(json.dumps(receipt))

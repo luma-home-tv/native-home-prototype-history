@@ -91,8 +91,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             plx_base::paths::app_id().into(),
             native_home::actions::Capabilities {
                 apps: true,
-                inputs: false,
-                settings: false,
+                inputs: matches!(
+                    launch_proof,
+                    Some(native_home::actions::Request::Input { .. })
+                ),
+                settings: matches!(
+                    launch_proof,
+                    Some(native_home::actions::Request::LgSettings {})
+                ),
             },
         )?);
     }
@@ -210,33 +216,45 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     shell.open(Page::Home);
     let mut requests = Vec::new();
-    let mut proof_target = None;
+    let mut proof_request = None;
     if let Some(request) = launch_proof {
-        match request {
+        match &request {
             native_home::actions::Request::Application { id }
                 if id == "com.ash.nativehome.targetproof" =>
             {
                 shell.open(Page::Applications);
-                if !shell.focus_application(&id) {
-                    return Err("Launch target is not in the live drawer".into());
+                if !shell.focus_application(id) {
+                    return Err("Launch target is not in live drawer".into());
                 }
-                shell.press(true, PressFrom::Key);
-                now += 50;
-                shell.tick(now, 0.05);
-                shell.press(false, PressFrom::Key);
-                for _ in 0..30 {
-                    now += 17;
-                    shell.tick(now, 1.0 / 60.0);
-                }
-                proof_target = Some(id);
             }
-            _ => return Err("Only the isolated launch target is allowed in this proof".into()),
+            native_home::actions::Request::LgSettings {} => {
+                shell.open(Page::Picture);
+                if !shell.focus_lg_settings() {
+                    return Err("LG Settings route unavailable".into());
+                }
+            }
+            native_home::actions::Request::Input { id } if id == "HDMI_4" => {
+                shell.open(Page::Inputs);
+                if !shell.focus_input(id) {
+                    return Err("HDMI 4 unavailable".into());
+                }
+            }
+            _ => return Err("Unapproved isolated proof route".into()),
         }
+        shell.press(true, PressFrom::Key);
+        now += 50;
+        shell.tick(now, 0.05);
+        shell.press(false, PressFrom::Key);
+        for _ in 0..30 {
+            now += 17;
+            shell.tick(now, 1.0 / 60.0);
+        }
+        proof_request = Some(request);
     }
     dispatch_requests(
         &mut shell,
         &action_worker,
-        proof_target.as_deref(),
+        proof_request.as_ref(),
         &mut requests,
     );
     let start = Instant::now();
@@ -325,7 +343,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             dispatch_requests(
                 &mut shell,
                 &action_worker,
-                proof_target.as_deref(),
+                proof_request.as_ref(),
                 &mut requests,
             );
             if hidden_at.is_none() {
@@ -444,7 +462,7 @@ fn poll_live(
 fn dispatch_requests(
     shell: &mut Shell,
     worker: &Option<native_home::actions::Worker>,
-    proof_target: Option<&str>,
+    proof_request: Option<&native_home::actions::Request>,
     unexecuted: &mut Vec<String>,
 ) {
     for action in shell.take_requests() {
@@ -452,10 +470,9 @@ fn dispatch_requests(
             unexecuted.push(format!("{action:?}"));
             continue;
         };
-        let allowed = match (&request, proof_target) {
-            (native_home::actions::Request::Application { id }, Some(target)) => id == target,
-            (native_home::actions::Request::Application { .. }, None) => true,
-            _ => false,
+        let allowed = match proof_request {
+            Some(proof) => &request == proof,
+            None => matches!(request, native_home::actions::Request::Application { .. }),
         };
         if allowed {
             if let Some(worker) = worker {

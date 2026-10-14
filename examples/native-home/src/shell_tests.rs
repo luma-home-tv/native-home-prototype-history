@@ -289,13 +289,78 @@ fn failed_or_expired_live_catalogue_keeps_cards_but_cannot_request_launch() {
 }
 
 #[test]
-fn changed_picture_context_and_failed_audio_never_reuse_fresh_control_values(){
-    let _serial=plx_base::testlock::serial();let mut data=fixture();let ctx=data.context.clone();
-    data.settings.insert("sound".into(),vec![Setting{id:"volume".into(),focus_key:20,label:"Volume".into(),value:"10".into(),context:ctx,protected:false,available:true}]);
-    let mut s=Shell::new(data,Preferences::default());s.open(Page::Sound);s.apply_live(&live_update(100),100);
-    assert_eq!(s.surface.table.activate(0),None);assert_eq!(s.surface.table.table.sections[0].rows[0].value.as_deref(),Some("Unavailable"));
-    let mut update=live_update(110);let crate::live::Reading::Value(ref mut picture)=update.picture else{unreachable!()};picture.context.dynamic_range="hdr".into();
-    picture.settings=vec![Setting{id:"brightness".into(),focus_key:1,label:"Brightness".into(),value:"70".into(),context:picture.context.clone(),protected:false,available:true}];
-    s.open(Page::Picture);s.apply_live(&update,110);assert_eq!(s.snapshot.context.dynamic_range,"hdr");assert_eq!(s.surface.table.table.sections[0].rows[0].value.as_deref(),Some("70"));
-    s.age_live(15111);assert_eq!(s.surface.table.activate(0),None);assert_eq!(s.surface.table.table.sections[0].rows[0].value.as_deref(),Some("Unavailable"));
+fn changed_picture_context_and_failed_audio_never_reuse_fresh_control_values() {
+    let _serial = plx_base::testlock::serial();
+    let mut data = fixture();
+    let ctx = data.context.clone();
+    data.settings.insert(
+        "sound".into(),
+        vec![Setting {
+            id: "volume".into(),
+            focus_key: 20,
+            label: "Volume".into(),
+            value: "10".into(),
+            context: ctx,
+            protected: false,
+            available: true,
+        }],
+    );
+    let mut s = Shell::new(data, Preferences::default());
+    s.open(Page::Sound);
+    s.apply_live(&live_update(100), 100);
+    assert_eq!(s.surface.table.activate(0), None);
+    assert_eq!(
+        s.surface.table.table.sections[0].rows[0].value.as_deref(),
+        Some("Unavailable")
+    );
+    let mut update = live_update(110);
+    let crate::live::Reading::Value(ref mut picture) = update.picture else {
+        unreachable!()
+    };
+    picture.context.dynamic_range = "hdr".into();
+    picture.settings = vec![Setting {
+        id: "brightness".into(),
+        focus_key: 1,
+        label: "Brightness".into(),
+        value: "70".into(),
+        context: picture.context.clone(),
+        protected: false,
+        available: true,
+    }];
+    s.open(Page::Picture);
+    s.apply_live(&update, 110);
+    assert_eq!(s.snapshot.context.dynamic_range, "hdr");
+    assert_eq!(
+        s.surface.table.table.sections[0].rows[0].value.as_deref(),
+        Some("70")
+    );
+    s.age_live(15111);
+    assert_eq!(s.surface.table.activate(0), None);
+    assert_eq!(
+        s.surface.table.table.sections[0].rows[0].value.as_deref(),
+        Some("Unavailable")
+    );
+}
+
+#[test]
+fn explicit_system_routes_use_registered_surface_keys() {
+    let _serial = plx_base::testlock::serial();
+    let mut s = Shell::new(fixture(), Preferences::default());
+    assert!(!s.focus_input("HDMI_1"));
+    assert!(!s.focus_lg_settings());
+    s.open(Page::Inputs);
+    assert!(!s.focus_input("HDMI_99"));
+    assert!(s.focus_input("HDMI_1"));
+    assert_eq!(focus(&s), 500);
+    s.open(Page::Picture);
+    assert!(s.focus_lg_settings());
+    assert_eq!(focus(&s), TABLE_BASE + 1000);
+    s.activate(
+        FocusKey {
+            entry: entry(Page::Picture),
+            elem: focus(&s),
+        },
+        false,
+    );
+    assert_eq!(s.take_requests(), vec![Action::OpenLgSettings]);
 }

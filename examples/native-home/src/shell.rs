@@ -1093,6 +1093,42 @@ impl Shell {
         self.moved(outcome);
         true
     }
+    pub fn focus_input(&mut self, id: &str) -> bool {
+        if self.surface.page != Page::Inputs {
+            return false;
+        }
+        let Some(card) = self.surface.cards.items.iter().find(|c| c.id == id) else {
+            return false;
+        };
+        let owner = InputOwner::Entry(entry(self.surface.page));
+        let outcome = self.input.engine.set(
+            owner,
+            FocusKey {
+                entry: entry(self.surface.page),
+                elem: card.key,
+            },
+            Some(GroupId(1)),
+            By::Restore,
+        );
+        self.moved(outcome);
+        true
+    }
+    pub fn focus_lg_settings(&mut self) -> bool {
+        if !self.surface.table_mode || self.surface.table.index_of_key(RowKey(1000)).is_none() {
+            return false;
+        }
+        let owner = InputOwner::Entry(entry(self.surface.page));
+        let key = FocusKey {
+            entry: entry(self.surface.page),
+            elem: TABLE_BASE + 1000,
+        };
+        let outcome = self
+            .input
+            .engine
+            .set(owner, key, Some(GroupId(1)), By::Restore);
+        self.moved(outcome);
+        true
+    }
     pub fn focused_item(&self) -> Option<String> {
         let key = self
             .input
