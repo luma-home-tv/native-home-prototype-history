@@ -186,7 +186,21 @@ pub fn execute<P: Platform>(
             return Err("Launch refused".into());
         }
         receipt.admitted = true;
-        for _ in 0..8 {
+        let deadline = std::time::Instant::now()
+            + std::time::Duration::from_secs(if matches!(request, Request::LgSettings {}) {
+                15
+            } else {
+                5
+            });
+        let attempts = if matches!(request, Request::LgSettings {}) {
+            60
+        } else {
+            8
+        };
+        for _ in 0..attempts {
+            if std::time::Instant::now() >= deadline {
+                break;
+            }
             let current = get(platform, Op::Foreground)?;
             let overlay = if matches!(request, Request::LgSettings {}) {
                 let windows = get(platform, Op::Windows)?;
