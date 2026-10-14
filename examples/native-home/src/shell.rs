@@ -477,7 +477,7 @@ impl Shell {
             Page::Home | Page::Applications => {
                 "Hold OK to add or remove a favourite • launches disabled in this preview"
             }
-            Page::Inputs => "Captured HDMI status • source switching disabled in this preview",
+            Page::Inputs => "HDMI status • source switching disabled in this preview",
             _ => "View only • setting changes remain available in LG Settings",
         });
         match page {
@@ -675,6 +675,8 @@ impl Shell {
         let Some(fresh) = &self.live_state else {
             return format!("TV state captured {}", self.snapshot.captured_at);
         };
+        if matches!(self.surface.page,Page::Network|Page::Accessibility|Page::General|Page::PanelCare){return "Managed by LG".into();}
+        if self.surface.page==Page::Controls{return if Freshness::current(fresh.picture,self.live_now){"Picture readings live • some readings unavailable".into()}else{"Readings unavailable • LG Settings available".into()};}
         let stamp = match self.surface.page {
             Page::Home | Page::Applications => fresh.catalogue,
             Page::Inputs => fresh.inputs,
