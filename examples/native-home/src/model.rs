@@ -3,6 +3,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use plx_ui::form::{Form, FormSection, RowKey, RowKind};
 use plx_ui::table::Row;
 use serde::{Deserialize, Serialize};
+use crate::strings::Message;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Application {
@@ -94,7 +95,7 @@ impl Setting {
 }
 
 pub fn application_form(catalogue: &Catalogue) -> Form<String, Action, Page> {
-    let mut section = FormSection::new("Applications");
+    let mut section = FormSection::new(Message::Applications.text());
     for app in &catalogue.applications {
         section = section.item_keyed(app.id.clone(), app.key, RowKind::Button,
             Action::RequestApplication(app.id.clone()), Row::new(&app.title).server_label());
@@ -103,18 +104,19 @@ pub fn application_form(catalogue: &Catalogue) -> Form<String, Action, Page> {
 }
 
 pub fn controls_form(settings: &[Setting], current: &Context) -> Form<String, Action, Page> {
-    let mut section = FormSection::new("Current settings");
+    let mut section = FormSection::new(Message::CurrentSettings.text());
     for setting in settings {
         let unavailable = !setting.available || !setting.still_current(current);
-        let detail = if setting.protected { "Managed by LG" }
-            else if unavailable { "Unavailable in the current input or picture mode" }
-            else { "View only; changes remain in LG Settings" };
+        let detail = if setting.protected { Message::ManagedByLg.text() }
+            else if unavailable { Message::UnavailableContext.text() }
+            else { "" };
+        let value = if unavailable { "Unavailable" } else { &setting.value };
         section = section.item_keyed(setting.id.clone(), RowKey(setting.focus_key), RowKind::Button,
-            Action::Inspect(setting.id.clone()), Row::new(&setting.label).detail(detail).value(&setting.value).server_value())
+            Action::Inspect(setting.id.clone()), Row::new(&setting.label).detail(detail).value(value).server_value())
             .disabled(unavailable || setting.protected);
     }
-    let lg = FormSection::new("More settings").item_keyed("lg-settings".to_owned(), RowKey(1000),
-        RowKind::Button, Action::OpenLgSettings, Row::new("Open LG Settings"));
+    let lg = FormSection::new(Message::MoreSettings.text()).item_keyed("lg-settings".to_owned(), RowKey(1000),
+        RowKind::Button, Action::OpenLgSettings, Row::new(Message::OpenLgSettings.text()));
     Form::new().section(section).section(lg)
 }
 
@@ -168,6 +170,7 @@ mod tests {
         let mut hdr = context(); hdr.dynamic_range = "hdr".into();
         table.set(controls_form(&settings, &hdr), None);
         assert_eq!(table.activate(1), None);
+        assert_eq!(table.table.sections[0].rows[1].value.as_deref(), Some("Unavailable"));
         assert_eq!(table.activate(2), Some(Activation::Action(Action::OpenLgSettings)));
     }
 

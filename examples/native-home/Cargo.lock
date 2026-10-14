@@ -381,6 +381,9 @@ dependencies = [
 name = "native_home"
 version = "0.1.0"
 dependencies = [
+ "plx_base",
+ "plx_gfx",
+ "plx_platform",
  "plx_ui",
  "serde",
  "serde_json",

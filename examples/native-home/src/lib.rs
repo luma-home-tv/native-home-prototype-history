@@ -2,4 +2,6 @@
 //! This first slice models navigation and read-only controls; it executes no TV operations.
 
 pub mod model;
+pub mod preview;
+pub mod strings;
 
