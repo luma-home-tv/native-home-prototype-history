@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080"><title>Native Home design mockup — synthetic data</title><rect width="1920" height="1080" fill="#2c2c2e"/>
+<text x="96" y="112" font-family="Inter,sans-serif" font-size="48" font-weight="600" fill="#f7fafc" text-anchor="start">Native Home</text>
+<text x="96" y="163" font-family="Inter,sans-serif" font-size="26" font-weight="400" fill="#b8bfcc" text-anchor="start">Apps</text>
+<text x="1824" y="112" font-family="Inter,sans-serif" font-size="48" font-weight="500" fill="#f7fafc" text-anchor="end">19:42</text>
+<text x="1824" y="163" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="end">Wednesday, 14 October</text>
+<path d="M96 200 L1824 200" stroke="#48484c" stroke-width="1" fill="none"/>
+<g transform="translate(120,271) scale(0.5)" fill="none" stroke="#b8bfcc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 29L32 9L56 29M14 25V55H50V25M27 55V37H37V55"/></g>
+<text x="176" y="299" font-family="Inter,sans-serif" font-size="32" font-weight="400" fill="#b8bfcc" text-anchor="start">Home</text>
+<rect x="96" y="338" width="286" height="68" rx="18" fill="#38383c"/>
+<rect x="96" y="356" width="4" height="32" rx="2" fill="#f7fafc"/>
+<g transform="translate(120,355) scale(0.5)" fill="none" stroke="#f7fafc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="18" height="18" rx="4"/><rect x="37" y="9" width="18" height="18" rx="4"/><rect x="9" y="37" width="18" height="18" rx="4"/><rect x="37" y="37" width="18" height="18" rx="4"/></g>
+<text x="176" y="383" font-family="Inter,sans-serif" font-size="32" font-weight="600" fill="#f7fafc" text-anchor="start">Apps</text>
+<g transform="translate(120,439) scale(0.5)" fill="none" stroke="#b8bfcc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="13" width="52" height="34" rx="5"/><path d="M22 55H42M32 47V55M23 25L38 25M32 19L38 25L32 31"/></g>
+<text x="176" y="467" font-family="Inter,sans-serif" font-size="32" font-weight="400" fill="#b8bfcc" text-anchor="start">Inputs</text>
+<g transform="translate(120,523) scale(0.5)" fill="none" stroke="#b8bfcc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15H54M10 32H54M10 49H54"/><circle cx="23" cy="15" r="6"/><circle cx="43" cy="32" r="6"/><circle cx="23" cy="49" r="6"/></g>
+<text x="176" y="551" font-family="Inter,sans-serif" font-size="32" font-weight="400" fill="#b8bfcc" text-anchor="start">Controls</text>
+<path d="M120 670 L358 670" stroke="#48484c" stroke-width="1" fill="none"/>
+<g transform="translate(120,698) scale(0.4375)" fill="none" stroke="#b8bfcc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 29L32 9L56 29M14 25V55H50V25M27 55V37H37V55"/></g>
+<text x="164" y="722" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="start">LG Home</text>
+<text x="120" y="848" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="start">TV connected</text>
+<text x="120" y="887" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="start">Sound · TV speaker</text>
+<rect x="480" y="248" width="778" height="62" rx="24" fill="#222224"/>
+<g transform="translate(502,263) scale(0.5)" fill="none" stroke="#b8bfcc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="27" cy="27" r="16"/><path d="M40 40L55 55"/></g>
+<text x="552" y="289" font-family="Inter,sans-serif" font-size="26" font-weight="400" fill="#b8bfcc" text-anchor="start">Search installed apps</text>
+<rect x="480" y="336" width="142" height="52" rx="26" fill="#222224"/>
+<text x="551.0" y="371" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="middle">All apps</text>
+<rect x="638" y="336" width="180" height="52" rx="26" fill="#222224"/>
+<text x="728.0" y="371" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="middle">Favourites</text>
+<rect x="480" y="336" width="142" height="52" rx="26" fill="#3b3b40"/>
+<text x="551" y="371" font-family="Inter,sans-serif" font-size="24" font-weight="600" fill="#f7fafc" text-anchor="middle">All apps</text>
+<text x="1258" y="371" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="end">A–Z  ↓</text>
+<rect x="480" y="424" width="238" height="180" rx="28" fill="#394852" stroke="#626269" stroke-width="1"/>
+<g transform="translate(557.0,472.0) scale(1.3125)" fill="none" stroke="#f7fafc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M24 15L48 32L24 49Z"/></g>
+<g transform="translate(675,442) scale(0.375)" fill="none" stroke="#f7fafc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M32 6L40 24L59 26L45 40L49 59L32 49L15 59L19 40L5 26L24 24Z"/></g>
+<text x="599.0" y="646" font-family="Inter,sans-serif" font-size="28" font-weight="400" fill="#f7fafc" text-anchor="middle">Cinema</text>
+<rect x="750" y="424" width="238" height="180" rx="28" fill="#54473d" stroke="#626269" stroke-width="1"/>
+<g transform="translate(827.0,472.0) scale(1.3125)" fill="none" stroke="#f7fafc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M17 24H47C59 24 63 53 53 53L41 43H23L11 53C1 53 5 24 17 24Z"/><path d="M17 30V42M11 36H23"/><circle cx="43" cy="33" r="2"/><circle cx="50" cy="39" r="2"/></g>
+<text x="869.0" y="646" font-family="Inter,sans-serif" font-size="28" font-weight="400" fill="#f7fafc" text-anchor="middle">Games</text>
+<rect x="1020" y="424" width="238" height="180" rx="28" fill="#404650" stroke="#626269" stroke-width="1"/>
+<g transform="translate(1097.0,472.0) scale(1.3125)" fill="none" stroke="#f7fafc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="12" width="13" height="42" rx="3"/><rect x="27" y="12" width="13" height="42" rx="3"/><path d="M47 14L59 51L49 54L37 17Z"/></g>
+<g transform="translate(1215,442) scale(0.375)" fill="none" stroke="#f7fafc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M32 6L40 24L59 26L45 40L49 59L32 49L15 59L19 40L5 26L24 24Z"/></g>
+<text x="1139.0" y="646" font-family="Inter,sans-serif" font-size="28" font-weight="400" fill="#f7fafc" text-anchor="middle">Library</text>
+<rect x="480" y="688" width="238" height="180" rx="28" fill="#514454" stroke="#626269" stroke-width="1"/>
+<g transform="translate(557.0,736.0) scale(1.3125)" fill="none" stroke="#f7fafc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M25 45V16L51 10V39M25 21L51 15"/><ellipse cx="17" cy="47" rx="8" ry="6"/><ellipse cx="43" cy="41" rx="8" ry="6"/></g>
+<g transform="translate(675,706) scale(0.375)" fill="none" stroke="#f7fafc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M32 6L40 24L59 26L45 40L49 59L32 49L15 59L19 40L5 26L24 24Z"/></g>
+<text x="599.0" y="910" font-family="Inter,sans-serif" font-size="28" font-weight="400" fill="#f7fafc" text-anchor="middle">Music</text>
+<rect x="750" y="688" width="238" height="180" rx="28" fill="#415049" stroke="#626269" stroke-width="1"/>
+<g transform="translate(827.0,736.0) scale(1.3125)" fill="none" stroke="#f7fafc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="48" height="48" rx="7"/><circle cx="24" cy="23" r="5"/><path d="M10 48L26 32L36 42L45 31L56 43"/></g>
+<g transform="translate(945,706) scale(0.375)" fill="none" stroke="#f7fafc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M32 6L40 24L59 26L45 40L49 59L32 49L15 59L19 40L5 26L24 24Z"/></g>
+<text x="869.0" y="910" font-family="Inter,sans-serif" font-size="28" font-weight="400" fill="#f7fafc" text-anchor="middle">Photos</text>
+<rect x="1020" y="688" width="238" height="180" rx="28" fill="#524e40" stroke="#626269" stroke-width="1"/>
+<g transform="translate(1097.0,736.0) scale(1.3125)" fill="none" stroke="#f7fafc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M25 45V16L51 10V39M25 21L51 15"/><ellipse cx="17" cy="47" rx="8" ry="6"/><ellipse cx="43" cy="41" rx="8" ry="6"/></g>
+<text x="1139.0" y="910" font-family="Inter,sans-serif" font-size="28" font-weight="400" fill="#f7fafc" text-anchor="middle">Radio</text>
+<rect x="1020" y="424" width="238" height="180" rx="28" fill="none" stroke="#b8bfcc" stroke-width="2"/>
+<rect x="1302" y="248" width="522" height="698" rx="28" fill="#222224"/>
+<g transform="translate(1342,284) scale(1.0625)" fill="none" stroke="#f7fafc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="12" width="13" height="42" rx="3"/><rect x="27" y="12" width="13" height="42" rx="3"/><path d="M47 14L59 51L49 54L37 17Z"/></g>
+<text x="1342" y="401" font-family="Inter,sans-serif" font-size="40" font-weight="600" fill="#f7fafc" text-anchor="start">Library</text>
+<text x="1342" y="449" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="start">Favourite application</text>
+<path d="M1342 484 L1784 484" stroke="#48484c" stroke-width="1" fill="none"/>
+<text x="1342" y="546" font-family="Inter,sans-serif" font-size="28" font-weight="400" fill="#f7fafc" text-anchor="start">Open application</text>
+<rect x="1326" y="580" width="474" height="72" rx="18" fill="#f7fafc"/>
+<text x="1350" y="626" font-family="Inter,sans-serif" font-size="26" font-weight="600" fill="#08080a" text-anchor="start">Remove from favourites</text>
+<text x="1342" y="712" font-family="Inter,sans-serif" font-size="26" font-weight="400" fill="#f7fafc" text-anchor="start">Move in favourites  ›</text>
+<text x="1342" y="796" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="start">Pinning and ordering change</text>
+<text x="1342" y="831" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="start">only your dashboard layout.</text>
+<path d="M96 978 L1824 978" stroke="#48484c" stroke-width="1" fill="none"/>
+<text x="96" y="1026" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="start">Arrows  Navigate   ·   OK  Select   ·   Back  Close menu</text>
+<text x="1824" y="1026" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="end">DESIGN MOCKUP · SYNTHETIC DATA</text></svg>

@@ -6,6 +6,11 @@ prior art and compatibility boundaries are recorded in `prior-art.json` and
 `design.json`. Derived source remains GPL-3.0-or-later; no LG system component is
 replaced.
 
+The [four-screen design concepts](docs/concepts/README.md) illustrate the intended
+Home, Apps, Inputs and Controls experience with synthetic data. They are labelled
+mockups and are distinct from the native device captures and verified behaviour
+described below.
+
 The shell composes the existing card grid, declarative forms, focus engine,
 double-buffered hit map and press machine. Its four main areas are Home,
 Applications, Inputs and Controls. Controls lead to Picture, Sound, Network,

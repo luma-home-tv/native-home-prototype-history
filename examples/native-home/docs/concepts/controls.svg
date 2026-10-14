@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080"><title>Native Home design mockup — synthetic data</title><rect width="1920" height="1080" fill="#2c2c2e"/>
+<text x="96" y="112" font-family="Inter,sans-serif" font-size="48" font-weight="600" fill="#f7fafc" text-anchor="start">Native Home</text>
+<text x="96" y="163" font-family="Inter,sans-serif" font-size="26" font-weight="400" fill="#b8bfcc" text-anchor="start">Controls</text>
+<text x="1824" y="112" font-family="Inter,sans-serif" font-size="48" font-weight="500" fill="#f7fafc" text-anchor="end">19:42</text>
+<text x="1824" y="163" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="end">Wednesday, 14 October</text>
+<path d="M96 200 L1824 200" stroke="#48484c" stroke-width="1" fill="none"/>
+<g transform="translate(120,271) scale(0.5)" fill="none" stroke="#b8bfcc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 29L32 9L56 29M14 25V55H50V25M27 55V37H37V55"/></g>
+<text x="176" y="299" font-family="Inter,sans-serif" font-size="32" font-weight="400" fill="#b8bfcc" text-anchor="start">Home</text>
+<g transform="translate(120,355) scale(0.5)" fill="none" stroke="#b8bfcc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="18" height="18" rx="4"/><rect x="37" y="9" width="18" height="18" rx="4"/><rect x="9" y="37" width="18" height="18" rx="4"/><rect x="37" y="37" width="18" height="18" rx="4"/></g>
+<text x="176" y="383" font-family="Inter,sans-serif" font-size="32" font-weight="400" fill="#b8bfcc" text-anchor="start">Apps</text>
+<g transform="translate(120,439) scale(0.5)" fill="none" stroke="#b8bfcc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="13" width="52" height="34" rx="5"/><path d="M22 55H42M32 47V55M23 25L38 25M32 19L38 25L32 31"/></g>
+<text x="176" y="467" font-family="Inter,sans-serif" font-size="32" font-weight="400" fill="#b8bfcc" text-anchor="start">Inputs</text>
+<rect x="96" y="506" width="286" height="68" rx="18" fill="#38383c"/>
+<rect x="96" y="524" width="4" height="32" rx="2" fill="#f7fafc"/>
+<g transform="translate(120,523) scale(0.5)" fill="none" stroke="#f7fafc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15H54M10 32H54M10 49H54"/><circle cx="23" cy="15" r="6"/><circle cx="43" cy="32" r="6"/><circle cx="23" cy="49" r="6"/></g>
+<text x="176" y="551" font-family="Inter,sans-serif" font-size="32" font-weight="600" fill="#f7fafc" text-anchor="start">Controls</text>
+<path d="M120 670 L358 670" stroke="#48484c" stroke-width="1" fill="none"/>
+<g transform="translate(120,698) scale(0.4375)" fill="none" stroke="#b8bfcc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 29L32 9L56 29M14 25V55H50V25M27 55V37H37V55"/></g>
+<text x="164" y="722" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="start">LG Home</text>
+<text x="120" y="848" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="start">TV connected</text>
+<text x="120" y="887" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="start">Sound · TV speaker</text>
+<text x="480" y="286" font-family="Inter,sans-serif" font-size="40" font-weight="600" fill="#f7fafc" text-anchor="start">Control centre</text>
+<rect x="480" y="334" width="282" height="62" rx="16" fill="#3b3b40"/>
+<text x="504" y="375" font-family="Inter,sans-serif" font-size="26" font-weight="600" fill="#f7fafc" text-anchor="start">Picture</text>
+<text x="504" y="449" font-family="Inter,sans-serif" font-size="26" font-weight="400" fill="#b8bfcc" text-anchor="start">Sound</text>
+<text x="504" y="523" font-family="Inter,sans-serif" font-size="26" font-weight="400" fill="#b8bfcc" text-anchor="start">Network</text>
+<text x="504" y="597" font-family="Inter,sans-serif" font-size="26" font-weight="400" fill="#b8bfcc" text-anchor="start">Accessibility</text>
+<text x="504" y="671" font-family="Inter,sans-serif" font-size="26" font-weight="400" fill="#b8bfcc" text-anchor="start">General</text>
+<text x="504" y="745" font-family="Inter,sans-serif" font-size="26" font-weight="400" fill="#b8bfcc" text-anchor="start">Panel Care</text>
+<rect x="798" y="326" width="1026" height="620" rx="28" fill="#222224"/>
+<text x="838" y="388" font-family="Inter,sans-serif" font-size="32" font-weight="600" fill="#f7fafc" text-anchor="start">Picture</text>
+<text x="838" y="432" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="start">HDMI 1  /  SDR  /  Cinema</text>
+<text x="846" y="509" font-family="Inter,sans-serif" font-size="26" font-weight="400" fill="#f7fafc" text-anchor="start">Picture mode</text>
+<text x="1776" y="509" font-family="Inter,sans-serif" font-size="26" font-weight="400" fill="#f7fafc" text-anchor="end">Cinema  ›</text>
+<rect x="820" y="544" width="982" height="68" rx="18" fill="#f7fafc"/>
+<text x="846" y="587" font-family="Inter,sans-serif" font-size="26" font-weight="600" fill="#08080a" text-anchor="start">OLED pixel brightness</text>
+<text x="1776" y="587" font-family="Inter,sans-serif" font-size="26" font-weight="600" fill="#08080a" text-anchor="end">70</text>
+<text x="846" y="665" font-family="Inter,sans-serif" font-size="26" font-weight="400" fill="#f7fafc" text-anchor="start">Contrast</text>
+<text x="1776" y="665" font-family="Inter,sans-serif" font-size="26" font-weight="400" fill="#f7fafc" text-anchor="end">85</text>
+<text x="846" y="743" font-family="Inter,sans-serif" font-size="26" font-weight="400" fill="#f7fafc" text-anchor="start">Black level</text>
+<text x="1776" y="743" font-family="Inter,sans-serif" font-size="26" font-weight="400" fill="#f7fafc" text-anchor="end">50</text>
+<path d="M838 793 L1784 793" stroke="#48484c" stroke-width="1" fill="none"/>
+<g transform="translate(838,819) scale(0.46875)" fill="none" stroke="#b8bfcc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="15" y="28" width="34" height="29" rx="5"/><path d="M22 28V18C22 4 42 4 42 18V28M32 39V46"/></g>
+<text x="882" y="842" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="start">OLED protections stay managed by LG</text>
+<text x="838" y="901" font-family="Inter,sans-serif" font-size="26" font-weight="400" fill="#f7fafc" text-anchor="start">More picture settings</text>
+<text x="1784" y="901" font-family="Inter,sans-serif" font-size="26" font-weight="400" fill="#f7fafc" text-anchor="end">Open LG Settings  ›</text>
+<path d="M96 978 L1824 978" stroke="#48484c" stroke-width="1" fill="none"/>
+<text x="96" y="1026" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="start">OK  Adjust verified control   ·   Back  Home</text>
+<text x="1824" y="1026" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="end">DESIGN MOCKUP · SYNTHETIC DATA</text></svg>

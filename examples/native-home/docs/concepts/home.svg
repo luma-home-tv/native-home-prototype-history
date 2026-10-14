@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080"><title>Native Home design mockup — synthetic data</title><rect width="1920" height="1080" fill="#2c2c2e"/>
+<text x="96" y="112" font-family="Inter,sans-serif" font-size="48" font-weight="600" fill="#f7fafc" text-anchor="start">Native Home</text>
+<text x="96" y="163" font-family="Inter,sans-serif" font-size="26" font-weight="400" fill="#b8bfcc" text-anchor="start">Home</text>
+<text x="1824" y="112" font-family="Inter,sans-serif" font-size="48" font-weight="500" fill="#f7fafc" text-anchor="end">19:42</text>
+<text x="1824" y="163" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="end">Wednesday, 14 October</text>
+<path d="M96 200 L1824 200" stroke="#48484c" stroke-width="1" fill="none"/>
+<rect x="96" y="254" width="286" height="68" rx="18" fill="#38383c"/>
+<rect x="96" y="272" width="4" height="32" rx="2" fill="#f7fafc"/>
+<g transform="translate(120,271) scale(0.5)" fill="none" stroke="#f7fafc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 29L32 9L56 29M14 25V55H50V25M27 55V37H37V55"/></g>
+<text x="176" y="299" font-family="Inter,sans-serif" font-size="32" font-weight="600" fill="#f7fafc" text-anchor="start">Home</text>
+<g transform="translate(120,355) scale(0.5)" fill="none" stroke="#b8bfcc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="18" height="18" rx="4"/><rect x="37" y="9" width="18" height="18" rx="4"/><rect x="9" y="37" width="18" height="18" rx="4"/><rect x="37" y="37" width="18" height="18" rx="4"/></g>
+<text x="176" y="383" font-family="Inter,sans-serif" font-size="32" font-weight="400" fill="#b8bfcc" text-anchor="start">Apps</text>
+<g transform="translate(120,439) scale(0.5)" fill="none" stroke="#b8bfcc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="13" width="52" height="34" rx="5"/><path d="M22 55H42M32 47V55M23 25L38 25M32 19L38 25L32 31"/></g>
+<text x="176" y="467" font-family="Inter,sans-serif" font-size="32" font-weight="400" fill="#b8bfcc" text-anchor="start">Inputs</text>
+<g transform="translate(120,523) scale(0.5)" fill="none" stroke="#b8bfcc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15H54M10 32H54M10 49H54"/><circle cx="23" cy="15" r="6"/><circle cx="43" cy="32" r="6"/><circle cx="23" cy="49" r="6"/></g>
+<text x="176" y="551" font-family="Inter,sans-serif" font-size="32" font-weight="400" fill="#b8bfcc" text-anchor="start">Controls</text>
+<path d="M120 670 L358 670" stroke="#48484c" stroke-width="1" fill="none"/>
+<g transform="translate(120,698) scale(0.4375)" fill="none" stroke="#b8bfcc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 29L32 9L56 29M14 25V55H50V25M27 55V37H37V55"/></g>
+<text x="164" y="722" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="start">LG Home</text>
+<text x="120" y="848" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="start">TV connected</text>
+<text x="120" y="887" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="start">Sound · TV speaker</text>
+<text x="480" y="288" font-family="Inter,sans-serif" font-size="40" font-weight="600" fill="#f7fafc" text-anchor="start">Your favourites</text>
+<text x="1824" y="284" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="end">View all apps  ›</text>
+<rect x="480" y="326" width="312" height="228" rx="28" fill="#394852" stroke="#f7fafc" stroke-width="3"/>
+<g transform="translate(594.0,398.0) scale(1.3125)" fill="none" stroke="#f7fafc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="12" width="13" height="42" rx="3"/><rect x="27" y="12" width="13" height="42" rx="3"/><path d="M47 14L59 51L49 54L37 17Z"/></g>
+<g transform="translate(749,344) scale(0.375)" fill="none" stroke="#f7fafc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M32 6L40 24L59 26L45 40L49 59L32 49L15 59L19 40L5 26L24 24Z"/></g>
+<text x="636.0" y="596" font-family="Inter,sans-serif" font-size="28" font-weight="600" fill="#f7fafc" text-anchor="middle">Library</text>
+<rect x="824" y="326" width="312" height="228" rx="28" fill="#54473d" stroke="#626269" stroke-width="1"/>
+<g transform="translate(938.0,398.0) scale(1.3125)" fill="none" stroke="#f7fafc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M24 15L48 32L24 49Z"/></g>
+<g transform="translate(1093,344) scale(0.375)" fill="none" stroke="#f7fafc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M32 6L40 24L59 26L45 40L49 59L32 49L15 59L19 40L5 26L24 24Z"/></g>
+<text x="980.0" y="596" font-family="Inter,sans-serif" font-size="28" font-weight="400" fill="#f7fafc" text-anchor="middle">Cinema</text>
+<rect x="1168" y="326" width="312" height="228" rx="28" fill="#404650" stroke="#626269" stroke-width="1"/>
+<g transform="translate(1282.0,398.0) scale(1.3125)" fill="none" stroke="#f7fafc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M25 45V16L51 10V39M25 21L51 15"/><ellipse cx="17" cy="47" rx="8" ry="6"/><ellipse cx="43" cy="41" rx="8" ry="6"/></g>
+<g transform="translate(1437,344) scale(0.375)" fill="none" stroke="#f7fafc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M32 6L40 24L59 26L45 40L49 59L32 49L15 59L19 40L5 26L24 24Z"/></g>
+<text x="1324.0" y="596" font-family="Inter,sans-serif" font-size="28" font-weight="400" fill="#f7fafc" text-anchor="middle">Music</text>
+<rect x="1512" y="326" width="312" height="228" rx="28" fill="#514454" stroke="#626269" stroke-width="1"/>
+<g transform="translate(1626.0,398.0) scale(1.3125)" fill="none" stroke="#f7fafc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="48" height="48" rx="7"/><circle cx="24" cy="23" r="5"/><path d="M10 48L26 32L36 42L45 31L56 43"/></g>
+<g transform="translate(1781,344) scale(0.375)" fill="none" stroke="#f7fafc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M32 6L40 24L59 26L45 40L49 59L32 49L15 59L19 40L5 26L24 24Z"/></g>
+<text x="1668.0" y="596" font-family="Inter,sans-serif" font-size="28" font-weight="400" fill="#f7fafc" text-anchor="middle">Photos</text>
+<text x="480" y="686" font-family="Inter,sans-serif" font-size="32" font-weight="600" fill="#f7fafc" text-anchor="start">Inputs</text>
+<text x="1824" y="682" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="end">View all inputs  ›</text>
+<rect x="480" y="722" width="312" height="190" rx="24" fill="#222224"/>
+<g transform="translate(504,746) scale(0.6875)" fill="none" stroke="#f7fafc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="13" width="52" height="34" rx="5"/><path d="M22 55H42M32 47V55M23 25L38 25M32 19L38 25L32 31"/></g>
+<text x="504" y="822" font-family="Inter,sans-serif" font-size="26" font-weight="500" fill="#f7fafc" text-anchor="start">Games console</text>
+<text x="504" y="865" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="start">HDMI 1</text>
+<text x="504" y="895" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="start">Active · Signal detected</text>
+<rect x="824" y="722" width="312" height="190" rx="24" fill="#222224"/>
+<g transform="translate(848,746) scale(0.6875)" fill="none" stroke="#b8bfcc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="13" width="52" height="34" rx="5"/><path d="M22 55H42M32 47V55M23 25L38 25M32 19L38 25L32 31"/></g>
+<text x="848" y="822" font-family="Inter,sans-serif" font-size="26" font-weight="500" fill="#f7fafc" text-anchor="start">Media player</text>
+<text x="848" y="865" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="start">HDMI 2</text>
+<text x="848" y="895" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="start">Connected · No signal</text>
+<rect x="1168" y="722" width="312" height="190" rx="24" fill="#222224"/>
+<g transform="translate(1192,746) scale(0.6875)" fill="none" stroke="#b8bfcc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="13" width="52" height="34" rx="5"/><path d="M22 55H42M32 47V55M23 25L38 25M32 19L38 25L32 31"/></g>
+<text x="1192" y="822" font-family="Inter,sans-serif" font-size="26" font-weight="500" fill="#f7fafc" text-anchor="start">HDMI 3</text>
+<text x="1192" y="865" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="start">HDMI 3</text>
+<text x="1192" y="895" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="start">Not connected</text>
+<rect x="1512" y="722" width="312" height="190" rx="24" fill="#222224"/>
+<g transform="translate(1536,746) scale(0.6875)" fill="none" stroke="#b8bfcc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="13" width="52" height="34" rx="5"/><path d="M22 55H42M32 47V55M23 25L38 25M32 19L38 25L32 31"/></g>
+<text x="1536" y="822" font-family="Inter,sans-serif" font-size="26" font-weight="500" fill="#f7fafc" text-anchor="start">HDMI 4</text>
+<text x="1536" y="865" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="start">HDMI 4</text>
+<text x="1536" y="895" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="start">Not connected</text>
+<path d="M96 978 L1824 978" stroke="#48484c" stroke-width="1" fill="none"/>
+<text x="96" y="1026" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="start">OK  Open   ·   Hold OK  Manage favourite   ·   Back  Exit</text>
+<text x="1824" y="1026" font-family="Inter,sans-serif" font-size="24" font-weight="400" fill="#b8bfcc" text-anchor="end">DESIGN MOCKUP · SYNTHETIC DATA</text></svg>

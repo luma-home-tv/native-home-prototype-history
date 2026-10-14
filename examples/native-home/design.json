@@ -1,5 +1,11 @@
 {
   "title": "Native Home interface",
+  "concepts": {
+    "index": "docs/concepts/README.md",
+    "overview": "docs/concepts/overview.png",
+    "status": "Design mockups with synthetic data; not native TV captures or implemented capability",
+    "screens": ["home", "apps", "inputs", "controls"]
+  },
   "viewport": {
     "logical_width": 1920,
     "logical_height": 1080,
