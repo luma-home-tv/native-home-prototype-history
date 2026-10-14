@@ -256,27 +256,33 @@ impl Worker {
         let mut index = 0;
         Self::start(
             move || {
-                let data = values[index.min(values.len() - 1)].clone();
-                index = index.saturating_add(1);
-                parse(&data, &own_id, origin.elapsed().as_millis() as u32, true)
+                move || {
+                    let data = values[index.min(values.len() - 1)].clone();
+                    index = index.saturating_add(1);
+                    parse(&data, &own_id, origin.elapsed().as_millis() as u32, true)
+                }
             },
             period,
         )
     }
-    fn start<F: FnMut() -> Update + Send + 'static>(
-        mut read: F,
-        period: Duration,
-    ) -> std::io::Result<Self> {
+    fn start<Init, F>(make_reader: Init, period: Duration) -> std::io::Result<Self>
+    where
+        Init: FnOnce() -> F + Send + 'static,
+        F: FnMut() -> Update + 'static,
+    {
         let latest = Arc::new(Mutex::new(None));
         let output = latest.clone();
         let (stop, receive) = mpsc::channel();
         let thread = thread::Builder::new()
             .name("home-live-read".into())
-            .spawn(move || loop {
-                *output.lock().unwrap_or_else(|e| e.into_inner()) = Some(read());
-                match receive.recv_timeout(period) {
-                    Err(mpsc::RecvTimeoutError::Timeout) => {}
-                    _ => break,
+            .spawn(move || {
+                let mut read = make_reader();
+                loop {
+                    *output.lock().unwrap_or_else(|e| e.into_inner()) = Some(read());
+                    match receive.recv_timeout(period) {
+                        Err(mpsc::RecvTimeoutError::Timeout) => {}
+                        _ => break,
+                    }
                 }
             })?;
         Ok(Self {
@@ -289,7 +295,7 @@ impl Worker {
     pub fn native(own_id: String, origin: Instant) -> std::io::Result<Self> {
         // Registration lives on this worker. Its private GLib context never crosses threads.
         Self::start(
-            {
+            move || {
                 let mut reader = None;
                 move || {
                     use plx_platform::webos::ls2;
