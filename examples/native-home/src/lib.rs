@@ -3,5 +3,7 @@
 
 pub mod model;
 pub mod preview;
+pub mod shell;
 pub mod strings;
 
+pub mod runtime;

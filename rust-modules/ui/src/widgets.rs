@@ -297,6 +297,10 @@ pub fn warm_tex_on(
 /// keyed thumbnail at an explicit resolution (flat placeholder skeleton), or a person's headshot
 /// (the same thumbnail, but its EMPTY case draws a person glyph rather than a blank tile).
 pub enum Art<'a> {
+    /// A caller-owned local texture. The renderer borrows it for this draw only: the caller
+    /// owns upload/deletion and supplies a content identity independent of a recycled GL name.
+    /// No server request, watch state or loading placeholder is associated with this variant.
+    Texture { id: u32, width: f32, height: f32, identity: u64 },
     /// The facts a poster tile reads of its catalog row — see [`TileFacts`], which the caller (a
     /// screen) fills from the row; the library never names the row's own type.
     Poster(Option<TileFacts<'a>>),
@@ -333,6 +337,7 @@ impl Art<'_> {
     fn motion_identity(&self) -> Option<crate::card_motion::Identity> {
         use std::hash::{Hash, Hasher};
         let (owner, sid, key, kind) = match self {
+            Self::Texture { id, identity, .. } => return Some(crate::card_motion::Identity { owner: *id as usize, asset: *identity }),
             Self::Poster(Some(m)) => (m.owner, m.src, m.thumb, 0u8),
             Self::Still(Some(m)) => (m.owner, m.src, still_key(m), 1),
             Self::Thumb { sid, key, .. } => (key.as_ptr() as usize, *sid, *key, 2),
@@ -644,7 +649,7 @@ pub fn art_uv(art: &Art, tw: f32, th: f32, r: Rect) -> [f32; 4] {
 pub fn art_crop(art: &Art) -> crate::Crop {
     match art {
         Art::Person { .. } => crate::Crop::Headshot,
-        Art::Poster(_) | Art::Still(_) | Art::Thumb { .. } => crate::Crop::Centre,
+        Art::Poster(_) | Art::Still(_) | Art::Thumb { .. } | Art::Texture { .. } => crate::Crop::Centre,
     }
 }
 
@@ -656,6 +661,7 @@ pub fn resolve_card_art(p: Painter, rect: Rect, art: &Art<'_>) -> (u32, f32, f32
     if p.is_recording() { return (0, 0.0, 0.0); }
     let _admission = art.motion_identity()
         .map(|id| crate::card_motion::Scope::card(id, p.to_screen(rect).0));
+    if let Art::Texture { id, width, height, .. } = art { return (*id, *width, *height); }
     let image = card_art_request(art).map_or((0, 0.0, 0.0), |(srv, path, w, h)| resolve_tex_wh_on(srv, path, w, h, 0));
     #[cfg(feature = "devtriggers")]
     {
@@ -672,6 +678,7 @@ pub fn resolve_card_art(p: Painter, rect: Rect, art: &Art<'_>) -> (u32, f32, f32
 /// through this, so the two cannot name different keys; `screens/src/library/lookahead_tests.rs::the_lookahead_asks_for_the_key_the_card_draw_resolves` pins it. `None` for an empty slot.
 pub fn card_art_request<'a>(art: &Art<'a>) -> Option<(u16, &'a str, c_int, c_int)> {
     Some(match art {
+        Art::Texture { .. } => return None,
         Art::Poster(m) => { let m = (*m)?; (m.src, m.thumb, POSTER_RES.0, POSTER_RES.1) }
         Art::Still(m) => { let m = (*m)?; (m.src, still_key(&m), STILL_RES.0, STILL_RES.1) }
         Art::Thumb { sid, key, res } | Art::Person { sid, key, res } => (*sid, *key, res.0, res.1),
@@ -708,6 +715,14 @@ pub fn card_named(p: Painter, frame: Rect, art: Art, fan_name: Option<&str>, rad
     // screen nor its springs can forget to report a new positional expression.
     let image = resolve_card_art(p, r, &art);
     match art {
+        Art::Texture { .. } => {
+            let (t, tw, th) = image;
+            if t != 0 && tw > 0.0 && th > 0.0 {
+                p.tex_carded(t, art_uv(&art, tw, th, r), r, rad, theme::TINT_WHITE, f);
+            } else {
+                p.rrect_sheened(r, rad, theme::CARD_ABSENT);
+            }
+        }
         Art::Poster(m) => {
             // **The ROW's server, not the current one.** A `thumb` path is a key on the server that
             // issued it — image-transcode paths embed a server-local ratingKey — so a bare

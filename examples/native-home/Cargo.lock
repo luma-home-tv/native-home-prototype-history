@@ -384,6 +384,7 @@ dependencies = [
  "libc",
  "plx_base",
  "plx_gfx",
+ "plx_machine",
  "plx_platform",
  "plx_ui",
  "serde",

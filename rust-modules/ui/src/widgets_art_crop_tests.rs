@@ -6,6 +6,23 @@ use crate::card_row::RowStyle;
 /// The crop never reads which server a picture came from, so any raw id will do.
 const SRC: u16 = 0;
 
+#[test]
+fn caller_owned_texture_never_requests_server_art_and_keeps_its_content_identity() {
+    let art = Art::Texture { id: 42, width: 160.0, height: 90.0, identity: 77 };
+    assert_eq!(card_art_request(&art), None);
+    assert_eq!(art.motion_identity().unwrap().asset, 77);
+    assert_eq!(art_crop(&art), crate::Crop::Centre);
+    let uv = art_uv(&art, 160.0, 90.0, Rect::new(0.0, 0.0, 200.0, 200.0));
+    let (sx, sy) = texel_scale(uv, 160.0, 90.0, Rect::new(0.0, 0.0, 200.0, 200.0));
+    assert!((sx-sy).abs() < 1e-4);
+}
+
+#[test]
+fn local_texture_recording_walk_does_not_resolve_or_request_art() {
+    let art = Art::Texture { id: 42, width: 160.0, height: 90.0, identity: 77 };
+    assert_eq!(resolve_card_art(Painter::recording(), Rect::FULL, &art), (0, 0.0, 0.0));
+}
+
 /// The cast row's circle, at rest and popped. The shape is what matters; the position is not.
 fn cast_circle(scale: f32) -> Rect {
     Rect::new(96.0, 700.0, RowStyle::CAST.w, RowStyle::CAST.h).scaled(scale)

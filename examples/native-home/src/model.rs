@@ -13,6 +13,8 @@ pub struct Application {
     pub kind: String,
     #[serde(default = "yes")]
     pub visible: bool,
+    #[serde(default)]
+    pub icon: Option<String>,
 }
 
 fn yes() -> bool { true }
@@ -23,6 +25,7 @@ pub struct Launchable {
     pub id: String,
     pub title: String,
     pub key: RowKey,
+    pub icon: Option<String>,
 }
 
 #[derive(Default)]
@@ -53,19 +56,20 @@ impl Catalogue {
                 self.next_key += 1;
                 RowKey(self.next_key)
             });
-            Launchable { id: app.id.clone(), title: app.title.clone(), key }
+            Launchable { id: app.id.clone(), title: app.title.clone(), key, icon: app.icon.clone() }
         }).collect();
         self.applications.sort_by(|a, b| a.title.to_lowercase().cmp(&b.title.to_lowercase()).then_with(|| a.id.cmp(&b.id)));
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Page { Home, Applications, Inputs, Controls, Picture, Sound, Network, Accessibility, General, PanelCare }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Action {
     Inspect(String),
     RequestApplication(String),
+    RequestInput(String),
     OpenLgSettings,
 }
 
@@ -126,7 +130,7 @@ mod tests {
     use plx_ui::form::{Activation, FormTable};
 
     fn app(id: &str, kind: &str, visible: bool) -> Application {
-        Application { id: id.into(), title: id.into(), kind: kind.into(), visible }
+        Application { id: id.into(), title: id.into(), kind: kind.into(), visible, icon: None }
     }
     fn context() -> Context {
         Context { input: "HDMI_1".into(), dynamic_range: "sdr".into(), picture_mode: "cinema".into() }

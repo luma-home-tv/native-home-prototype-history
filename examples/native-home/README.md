@@ -1,48 +1,78 @@
 # Native Home
 
-A separate native Home application built on PlxNative's shared UI libraries. The
-Plex application, stable package and player remain separate and unchanged.
+A separate native Home application built on PlxNative's shared UI libraries, in
+an optional example/client rather than in the Plex application. The selected
+prior art and compatibility boundaries are recorded in `prior-art.json` and
+`design.json`. Derived source remains GPL-3.0-or-later; no LG system component is
+replaced.
 
-This branch starts with a small model and declarative forms. It directly reuses
-`plx_ui` instead of copying its widgets. The current model executes no TV calls
-and contains no setting-write action. Protected and stale settings cannot be
-activated; normal settings open a read-only inspection, with LG Settings as the
-route for changes until each operation has been independently validated.
+The shell composes the existing card grid, declarative forms, focus engine,
+double-buffered hit map and press machine. Its four main areas are Home,
+Applications, Inputs and Controls. Controls lead to Picture, Sound, Network,
+Accessibility, General and Panel Care. A small shared `Art::Texture` variant lets
+the standard cards borrow local app icons without a Plex server. Existing server
+art paths retain their previous behaviour.
 
-The first four main areas are Home, Applications, Inputs and Controls. Detailed
-controls are grouped into Picture, Sound, Network, Accessibility, General and
-Panel Care. App identities and focus keys survive catalogue refreshes; hidden
-services and store placeholders are excluded from the ordinary app drawer.
+Application identities and focus keys survive catalogue refreshes. Hidden
+services, store placeholders and unregistered targets are excluded. A long OK
+press toggles a favourite and does not also launch the app on release. Moving
+focus cancels the armed gesture. Back returns through Controls or Home, and exits
+from Home. Empty catalogues and intentionally empty favourites keep the rail
+usable. Preferences have a serializable schema; a persistent store has **not**
+yet been connected, so this preview starts with default favourites each launch.
 
-Host checks cover catalogue and control safety. A native simulator capture is
-needed for layout, and an isolated webOS 24 device build is needed for runtime,
-remote input, performance and clean removal. No simulator result is a TV result.
+`collect-snapshot.py` reads registered apps/launch points, bounded icon files,
+HDMI status and picture/audio values over SSH. It never installs, launches or
+changes anything on the TV. Its output is a private build artifact. The renderer
+labels this data as a captured snapshot, not live state. HDMI plug, signal and
+active state are distinct. Settings include their input/dynamic-range/mode
+context; protected, unavailable or stale rows cannot activate.
 
-The application will use its own package ID. No Home-button interception, boot
-hook, system-library replacement or settings writes are part of the first pilot.
+The shell emits typed requests for applications, HDMI inputs and LG Settings,
+but the preview **records them without executing them**. It has no setting-write
+action, arbitrary service caller, privileged broker, Home interception or boot
+hook. Unsupported control sections stay with LG Settings. Comprehensive settings
+coverage, live refresh, persistent preferences, a restricted executor and device
+performance remain incomplete.
 
-All fixtures use synthetic application IDs. TV addresses, credentials, real
-device snapshots, SDK paths and runtime receipts must remain outside tracked
-source. Source derived from PlxNative remains GPL-3.0-or-later.
+## Build and verification
 
-## Current evidence
+`build-client.py test` runs the separate client's behaviour checks.
+`build-client.py host --bin home-preview` builds the native desktop shell;
+run it with a snapshot asset directory and a new capture directory. Add
+`--interactive` for a visible, bounded 30-second session. Fonts use the shared
+app-resource environment; use an isolated `PLXNATIVE_APP_DIR` and
+`PLXNATIVE_RUNTIME_DIR` on the host.
 
-The control-centre development surface renders through the shared `plx_ui` /
-`plx_gfx` engine. Its full-resolution [native webOS 24 capture](docs/control-centre-webos24.png)
-was taken on an OLED55G26LA with the Mali-G52 backend, in a separate unprivileged
-package. The preview exited and its package, launcher entry, runtime files, jail
-and mounts were removed. LG Home and PlxNative launches passed afterward, and the
-checked Home/startup/jail-policy files retained their original hashes.
+`build-client.py arm --bin home-preview` rebuilds Rust's standard library for
+ARMv7 softfp using `NATIVE_HOME_WEBOS_SDK` and `NATIVE_HOME_BUILD_DIR`. It compiles
+the SDL adapter against the target headers: webOS adds fields to SDL events, so
+Rust does not reinterpret the desktop event union. Only the observed remote OK
+and Back codes and standard navigation/pointer events are mapped. Home, power,
+volume and channel keys are not intercepted.
 
-This capture uses synthetic example settings, not live TV values. It has no input
-dispatcher or TV action executor. It proves rendering and the scoped deployment /
-removal path, not interactive navigation, performance or complete settings parity.
-The app drawer, favourites, inputs, interactive navigation and restricted live
-data/control bridge remain ongoing work.
+`package-preview.py` packages only `com.ash.nativehome.preview`. It requires a
+fresh output staging directory and, for the interactive binary,
+`NATIVE_HOME_SNAPSHOT_ASSETS`. Both previews include no services, boot hooks,
+permissions or system-file payload. The device shell refuses root/unexpected
+package identity, captures six pages to its own runtime namespace, then runs for
+at most 30 seconds. Its report separates scripted component navigation from SDL
+events and explicitly makes no performance claim. SDK locations, TV addresses,
+credentials, real snapshots/icons and runtime receipts stay outside tracked
+source.
 
-`build-client.py` provides separate `test`, `host` and `arm` targets. The ARM
-target rebuilds Rust's standard library for ARMv7 softfp and uses the existing
-auxv compatibility shim; it never builds or deploys the Plex application.
-`package-preview.py` packages only `com.ash.nativehome.preview`, with no services,
-boot hooks or system-file payload. SDK locations and build outputs are supplied
-through local environment variables rather than committed machine paths.
+## Evidence boundaries
+
+The earlier [native webOS 24 control capture](docs/control-centre-webos24.png)
+used synthetic values on an OLED55G26LA/Mali-G52 in an unprivileged package. Its
+package, launcher entry, runtime, jail and mounts were removed; checked core
+hashes were unchanged and LG Home/PlxNative launches passed afterward. That
+capture proves rendering and scoped removal, not interactive navigation or
+settings parity.
+
+The newer host shell renders the G2's actual captured catalogue and readings.
+Behaviour tests cover drawer identity, protected/stale controls, navigation,
+press cancellation, hold-versus-release, empty favourites and distinct input
+requests. Host frames and tests are not television performance or physical remote
+proof. Each device deployment needs its own lock, frame inspection and cleanup
+receipt before it can be called verified.
