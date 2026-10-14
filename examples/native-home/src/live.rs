@@ -303,9 +303,10 @@ impl Worker {
                     if reader.is_none() {
                         reader = ls2::register().ok();
                     }
-                    let raw = reader
-                        .as_ref()
-                        .map_or_else(|| json!({}), |bus| crate::native_probe::read(bus, &own_id));
+                    let raw = reader.as_ref().map_or_else(
+                        || json!({}),
+                        |bus| crate::native_probe::read(bus, &own_id, false),
+                    );
                     parse(&raw, &own_id, origin.elapsed().as_millis() as u32, false)
                 }
             },

@@ -10,7 +10,7 @@ pub fn collect() -> serde_json::Value {
             return json!({"registered":false,"error":error.to_string(),"uid":unsafe{libc::geteuid()},"writes":false})
         }
     };
-    let mut value = read(&bus, plx_base::paths::app_id());
+    let mut value = read(&bus, plx_base::paths::app_id(), true);
     value["registered"] = serde_json::json!(true);
     value["uid"] = serde_json::json!(unsafe { libc::geteuid() });
     value
@@ -19,6 +19,7 @@ pub fn collect() -> serde_json::Value {
 pub(crate) fn read(
     bus: &plx_platform::webos::ls2::Registration,
     own_id: &str,
+    probe_audio: bool,
 ) -> serde_json::Value {
     use plx_platform::webos::ls2;
     use serde_json::json;
@@ -51,6 +52,13 @@ pub(crate) fn read(
     ];
     let mut replies = serde_json::Map::new();
     for (name, uri, payload) in operations {
+        if name == "audio" && !probe_audio {
+            replies.insert(
+                name.to_owned(),
+                json!({"returnValue":false,"known_unavailable":true}),
+            );
+            continue;
+        }
         let response = if name == "audio" {
             // Attach only this process's real app identity, never impersonate another caller.
             bus.call_as_app(
