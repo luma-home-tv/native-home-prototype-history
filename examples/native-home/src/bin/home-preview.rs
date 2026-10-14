@@ -86,7 +86,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     #[allow(unused_mut)]
     let mut action_worker = None;
     #[cfg(target_arch = "arm")]
-    if device && launch_proof.is_some() {
+    if device {
         action_worker = Some(native_home::actions::Worker::native(
             plx_base::paths::app_id().into(),
             native_home::actions::Capabilities {
@@ -115,6 +115,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut shell = Shell::new(snapshot, loaded_preferences.clone().unwrap_or_default());
     queue_preferences(&mut shell, &mut persistence, &mut storage_error);
     let preferences_at_boot = shell.preferences().clone();
+    shell.enable_app_launches(action_worker.is_some());
     shell.load_icons(&assets);
     let mut now = 0;
     for (page, name) in [
@@ -451,7 +452,11 @@ fn dispatch_requests(
             unexecuted.push(format!("{action:?}"));
             continue;
         };
-        let allowed = matches!((&request,proof_target),(native_home::actions::Request::Application{id},Some(target))if id==target);
+        let allowed = match (&request, proof_target) {
+            (native_home::actions::Request::Application { id }, Some(target)) => id == target,
+            (native_home::actions::Request::Application { .. }, None) => true,
+            _ => false,
+        };
         if allowed {
             if let Some(worker) = worker {
                 match worker.queue(request) {

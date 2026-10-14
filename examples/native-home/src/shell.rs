@@ -376,6 +376,7 @@ pub struct Shell {
     live_state: Option<Freshness>,
     live_now: u32,
     live_updates: u32,
+    app_launches_enabled: bool,
 }
 impl Shell {
     pub fn new(snapshot: Snapshot, mut prefs: Preferences) -> Self {
@@ -422,6 +423,7 @@ impl Shell {
             live_state: None,
             live_now: 0,
             live_updates: 0,
+            app_launches_enabled: false,
         };
         shell.rebuild(Page::Home);
         shell
@@ -475,7 +477,11 @@ impl Shell {
         self.surface = Self::blank(page);
         self.status = cstr(match page {
             Page::Home | Page::Applications => {
-                "Hold OK to add or remove a favourite • launches disabled in this preview"
+                if self.app_launches_enabled {
+                    "OK to open • hold OK to add or remove a favourite"
+                } else {
+                    "Hold OK to add or remove a favourite • launches disabled in this preview"
+                }
             }
             Page::Inputs => "HDMI status • source switching disabled in this preview",
             _ => "View only • setting changes remain available in LG Settings",
@@ -668,6 +674,10 @@ impl Shell {
             self.live_now,
         )
     }
+    pub fn enable_app_launches(&mut self, enabled: bool) {
+        self.app_launches_enabled = enabled;
+        self.rebuild(self.surface.page);
+    }
     pub fn live_updates(&self) -> u32 {
         self.live_updates
     }
@@ -675,8 +685,19 @@ impl Shell {
         let Some(fresh) = &self.live_state else {
             return format!("TV state captured {}", self.snapshot.captured_at);
         };
-        if matches!(self.surface.page,Page::Network|Page::Accessibility|Page::General|Page::PanelCare){return "Managed by LG".into();}
-        if self.surface.page==Page::Controls{return if Freshness::current(fresh.picture,self.live_now){"Picture readings live • some readings unavailable".into()}else{"Readings unavailable • LG Settings available".into()};}
+        if matches!(
+            self.surface.page,
+            Page::Network | Page::Accessibility | Page::General | Page::PanelCare
+        ) {
+            return "Managed by LG".into();
+        }
+        if self.surface.page == Page::Controls {
+            return if Freshness::current(fresh.picture, self.live_now) {
+                "Picture readings live • some readings unavailable".into()
+            } else {
+                "Readings unavailable • LG Settings available".into()
+            };
+        }
         let stamp = match self.surface.page {
             Page::Home | Page::Applications => fresh.catalogue,
             Page::Inputs => fresh.inputs,
