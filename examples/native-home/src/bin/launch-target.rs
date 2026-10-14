@@ -20,6 +20,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     serde_json::to_writer_pretty(&mut file, &info)?;
     let start = Instant::now();
     let mut stop = false;
+    let mut frames=0;
     while start.elapsed() < Duration::from_secs(12) && !stop {
         let p = Painter::root();
         let ground = theme::SURFACE_APP;
@@ -43,6 +44,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             theme::TEXT_SECONDARY,
         )
         .draw(p, Rect::new(96.0, 340.0, 1728.0, 80.0));
+        frames+=1;
+        if frames==45{window.capture(&plx_base::paths::in_runtime_dir(&format!("target-{}.ppm",std::process::id())))?;}
         window.swap();
         while let Some(event) = poll() {
             if event.kind == 1 || (event.kind == 2 && event.key == 6) {
