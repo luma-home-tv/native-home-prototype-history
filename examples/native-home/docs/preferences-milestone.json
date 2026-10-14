@@ -1,0 +1,49 @@
+{
+  "code_revision": "8aca0a6",
+  "client_tests": {
+    "passed": 17,
+    "failed": 0
+  },
+  "client_clippy": "passed with warnings denied",
+  "arm_release_link": "passed",
+  "platform": "OLED55G26LA / webOS24 9.2.2-61 / firmware 23.25.55",
+  "preference_proof": {
+    "unprivileged_process": true,
+    "pin_save_readback": true,
+    "second_launch_loaded_first_commit": true,
+    "unpin_save_readback": true,
+    "background_bounded_writer": true,
+    "directory": "app-owned folder on writable developer media",
+    "reboot_tested": false
+  },
+  "read_capability_probe": {
+    "normal_app_identity": true,
+    "no_new_permissions": true,
+    "catalogue": "success with app records",
+    "launch_points": "success with records",
+    "inputs": "success with four device records",
+    "picture": "success with input/range/mode context and four values",
+    "audio": "returnValue=false, errorCode=-1, Message status unknown.",
+    "audio_cause": "not established",
+    "rendered_ui_live_refresh": "not implemented"
+  },
+  "cleanup": {
+    "package_catalogue_launchpoint_runtime_jail_mounts": "absent",
+    "persistent_test_folder": "absent",
+    "checked_core_hashes": "unchanged",
+    "picture_audio_readbacks": "unchanged",
+    "lg_home_foreground": "verified",
+    "original_plxnative_foreground": "restored and verified",
+    "reboot_required": false
+  },
+  "boundaries": {
+    "setting_writes": false,
+    "application_launch_executor": false,
+    "root_helper_installed": false,
+    "home_interception": false,
+    "physical_remote_proof_for_new_slice": false,
+    "performance_proof": false
+  },
+  "reuse_decision": "Use the ordinary native app identity for validated getters; investigate failed operations before adding a narrowly authorized privileged helper.",
+  "privacy": "Actual snapshots, icons, native frames, host/TV configuration and detailed receipts remain outside tracked source."
+}

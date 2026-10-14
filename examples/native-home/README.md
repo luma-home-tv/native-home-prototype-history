@@ -23,8 +23,10 @@ writable developer media. The store checks owner, private permissions, file type
 links, byte limits and app identities; it refuses corrupt or newer-schema records.
 Directory-relative atomic replacement and fsync preserve the last complete state.
 A bounded worker queue keeps disk flushes off the render thread; save success is
-reported only after readback. Host reopen/empty-state and redirection checks pass;
-the new storage path still needs its own webOS24 relaunch/removal evidence.
+reported only after readback. The G2 verified pin/save, app exit, reload on a
+second launch, then unpin/save. Both runs had confirmed readback as the normal
+unprivileged app. Reboot survival has not been exercised. The test removed its
+own persistent folder as well as its package/runtime/jail/mounts.
 
 `collect-snapshot.py` reads registered apps/launch points, bounded icon files,
 HDMI status and picture/audio values over SSH. It never installs, launches or
@@ -32,6 +34,14 @@ changes anything on the TV. Its output is a private build artifact. The renderer
 labels this data as a captured snapshot, not live state. HDMI plug, signal and
 active state are distinct. Settings include their input/dynamic-range/mode
 context; protected, unavailable or stale rows cannot activate.
+
+The normal app's read-only native API probe successfully read the app catalogue,
+launch points, HDMI status and the enumerated picture values on webOS24. The audio
+getter returned `Message status unknown.` from that identity; the cause and a
+working audio path are not yet established. This proves those getter calls, not
+live refresh in the rendered UI, subscriptions or launch/write capability. It
+supports using an unprivileged adapter first and adding a restricted helper only
+where a specific operation actually needs it.
 
 The shell emits typed requests for applications, HDMI inputs and LG Settings,
 but the preview **records them without executing them**. It has no setting-write
@@ -93,5 +103,10 @@ Eleven client behaviour tests and Clippy pass on code revision `dcc549d`, which
 also produced the tested ARM release binary. The full upstream gate passed on
 `ff25538`; the entire shared `rust-modules` tree is unchanged since that gate.
 The public-safe [milestone record](docs/shell-milestone.json) keeps these evidence
-boundaries explicit. Live refresh/execution, persistent preferences, comprehensive
+boundaries explicit. Live refresh/execution, reboot persistence verification, comprehensive
 control coverage and device performance remain ongoing work.
+
+The storage/read-capability slice is recorded in
+[its milestone record](docs/preferences-milestone.json). It passed 17 client tests,
+Clippy and the ARM release link on `8aca0a6`. No shared upstream source changed
+since the earlier full gate; only the optional client/package changed.
